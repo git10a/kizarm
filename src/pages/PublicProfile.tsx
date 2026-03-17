@@ -342,54 +342,91 @@ export function PublicProfile() {
         </div>
       ) : (
         <>
-          <h2 className="text-[#111] text-xs font-bold tracking-widest uppercase mb-3 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+          <h2 className="text-[#111] text-xs font-bold tracking-widest uppercase mb-4 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             Race History
           </h2>
-          <div className="bg-white rounded-2xl border border-[#E8E8E8] overflow-hidden">
-            {sortedRecords.map((record, i) => {
-              const isPB = pbRecords[record.category]?.id === record.id;
-              const isLast = i === sortedRecords.length - 1;
-              return (
-                <div
-                  key={record.id}
-                  className={`flex items-start gap-3 px-4 py-3 ${!isLast ? 'border-b border-[#F0F0F0]' : ''}`}
-                >
-                  {/* Date column */}
-                  <div className="shrink-0 w-20 pt-0.5">
-                    <span className="text-[#999] text-[10px]">{record.date}</span>
-                  </div>
 
-                  {/* Main info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#F5F5F5', color: '#666', border: '1px solid #E8E8E8' }}>
-                        {record.category}
-                      </span>
-                      {isPB && (
-                        <span className="text-[9px] font-black px-1 py-0.5 rounded" style={{ background: '#111', color: '#FFC200', border: '1px solid #FFC200' }}>
-                          PB
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[#111] text-xs font-medium truncate">{record.raceName}</p>
-                    {record.memo && (
-                      <p className="text-[#999] text-[10px] mt-0.5 leading-relaxed">{record.memo}</p>
-                    )}
-                  </div>
+          {/* Group by year */}
+          {(() => {
+            const byYear: Record<string, RaceRecord[]> = {};
+            for (const r of sortedRecords) {
+              const year = r.date.slice(0, 4);
+              if (!byYear[year]) byYear[year] = [];
+              byYear[year].push(r);
+            }
+            const years = Object.keys(byYear).sort((a, b) => Number(b) - Number(a));
 
-                  {/* Time */}
-                  <div className="shrink-0 text-right">
-                    <span
-                      className={`text-sm font-bold tabular-nums ${isPB ? 'text-[#FFC200]' : 'text-[#333]'}`}
-                      style={{ fontFamily: "'Orbitron', sans-serif" }}
-                    >
-                      {formatTime(record.hours, record.minutes, record.seconds)}
-                    </span>
-                  </div>
+            return years.map((year) => (
+              <div key={year} className="mb-8">
+                {/* Year label */}
+                <div className="text-[#111] text-2xl font-black mb-4 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+                  {year}
                 </div>
-              );
-            })}
-          </div>
+
+                {/* Timeline entries */}
+                <div className="relative">
+                  {byYear[year].map((record, i) => {
+                    const isPB = pbRecords[record.category]?.id === record.id;
+                    const isLast = i === byYear[year].length - 1;
+                    const monthDay = record.date.slice(5); // "MM-DD"
+
+                    return (
+                      <div key={record.id} className="flex gap-3">
+                        {/* Timeline spine */}
+                        <div className="flex flex-col items-center shrink-0" style={{ width: 28 }}>
+                          {/* Dot */}
+                          <div
+                            className="w-2 h-2 rounded-full mt-1 shrink-0 z-10"
+                            style={{ background: isPB ? '#FFC200' : '#D0D0D0', boxShadow: isPB ? '0 0 0 3px #FFF3CC' : 'none' }}
+                          />
+                          {/* Line */}
+                          {!isLast && (
+                            <div className="flex-1 w-px mt-1" style={{ borderLeft: '2px dashed #E8E8E8', minHeight: 24 }} />
+                          )}
+                        </div>
+
+                        {/* Card */}
+                        <div className={`flex-1 min-w-0 ${isLast ? 'pb-0' : 'pb-4'}`}>
+                          {/* Date badge */}
+                          <div className="text-[#AAA] text-[10px] mb-1">{monthDay.replace('-', '月')}日</div>
+
+                          {/* Race card */}
+                          <div className="bg-white rounded-xl border border-[#E8E8E8] px-4 py-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#F5F5F5', color: '#666', border: '1px solid #E8E8E8' }}>
+                                    {record.category}
+                                  </span>
+                                  {isPB && (
+                                    <span className="text-[9px] font-black px-1 py-0.5 rounded" style={{ background: '#111', color: '#FFC200', border: '1px solid #FFC200' }}>
+                                      PB
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[#111] text-sm font-semibold truncate">{record.raceName}</p>
+                                {record.memo && (
+                                  <p className="text-[#999] text-xs mt-1 leading-relaxed">{record.memo}</p>
+                                )}
+                              </div>
+                              <div className="shrink-0 text-right">
+                                <span
+                                  className={`text-base font-bold tabular-nums ${isPB ? 'text-[#FFC200]' : 'text-[#333]'}`}
+                                  style={{ fontFamily: "'Orbitron', sans-serif" }}
+                                >
+                                  {formatTime(record.hours, record.minutes, record.seconds)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ));
+          })()}
         </>
       )}
     </div>
