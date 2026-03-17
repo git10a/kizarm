@@ -48,9 +48,6 @@ export function PublicProfile() {
   // Edit state (owner only)
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<UserProfile | null>(null);
-  const [copied, setCopied] = useState(false);
-
-  const profileUrl = `${window.location.origin}/u/${urlId}`;
 
   useEffect(() => {
     (async () => {
@@ -122,13 +119,6 @@ export function PublicProfile() {
   const handleCancel = () => {
     setForm(profile);
     setEditing(false);
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(profileUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
   };
 
   if (loading) {
@@ -250,11 +240,6 @@ export function PublicProfile() {
                     )}
                   </div>
                 )}
-                <div className="mt-3 pt-3 border-t border-[#F0F0F0]">
-                  <span className="text-[#FFC200] text-xs tracking-wider">
-                    {categoriesWithRecords.length} カテゴリ記録
-                  </span>
-                </div>
               </>
             )}
           </div>
@@ -274,22 +259,6 @@ export function PublicProfile() {
         </div>
       </div>
 
-      {/* Share URL (owner only) */}
-      {isOwner && (
-        <div className="bg-white rounded-2xl border border-[#E8E8E8] px-4 py-3 mb-6 flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="text-[#888] text-[10px] tracking-wider uppercase mb-0.5">プロフィールURL</div>
-            <div className="text-[#444] text-xs truncate font-mono">{profileUrl}</div>
-          </div>
-          <button
-            onClick={handleCopy}
-            className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-            style={copied ? { background: '#d4edda', color: '#155724' } : { background: '#F5F5F5', color: '#555' }}
-          >
-            {copied ? 'コピー済み' : 'コピー'}
-          </button>
-        </div>
-      )}
 
       {/* PB Records */}
       <h2 className="text-[#111] text-sm font-bold tracking-widest uppercase mb-3" style={{ fontFamily: "'Orbitron', sans-serif" }}>

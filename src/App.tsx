@@ -28,23 +28,9 @@ function AppInner() {
   return (
     <Switch>
       <Route path="/u/:name">
-        <div className="min-h-screen bg-[#F8F8F6] text-[#111]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-          <header className="border-b border-[#E8E8E8] bg-white">
-            <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-              <a href="/">
-                <span className="flex items-center cursor-pointer">
-                  <span className="text-[#FFC200] text-xl font-black tracking-widest" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                    KIZARM
-                  </span>
-                </span>
-              </a>
-              <span className="text-[#888] text-xs tracking-wider">公開プロフィール</span>
-            </div>
-          </header>
-          <main className="max-w-6xl mx-auto px-4 py-8">
-            <PublicProfile />
-          </main>
-        </div>
+        <Layout>
+          <PublicProfile />
+        </Layout>
       </Route>
       <Route>
         {!user ? (
