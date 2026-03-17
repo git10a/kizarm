@@ -116,12 +116,12 @@ function PBCard({ record, isOwner, onDelete }: {
         </div>
 
         {/* Logo bar */}
-        <div className="flex items-center justify-between px-1.5 py-1.5">
+        <div className="relative flex items-center justify-center px-1.5 py-1.5">
           <span className="text-[13px] font-black tracking-[0.15em]" style={{ color: '#3D2400', fontFamily: "'Orbitron', sans-serif" }}>
             KIZARM
           </span>
           {isOwner && (
-            <div className="flex items-center gap-0.5"
+            <div className="absolute right-1.5 flex items-center gap-0.5"
               style={{
                 transition: hovered ? 'opacity 0.15s ease 0.15s' : 'opacity 0.1s ease',
                 opacity: hovered ? 1 : 0,
