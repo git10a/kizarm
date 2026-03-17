@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
-import { useRecords, getPBRecords, isPB } from '../hooks/useRecords';
+import { getPBRecords, isPB } from '../hooks/useRecords';
+import type { useRecords } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
 import type { RaceCategory } from '../types';
 import { RecordCard } from '../components/RecordCard';
 import { PBSummary } from '../components/PBSummary';
 import { GrowthChart } from '../components/GrowthChart';
 
-export function Home() {
-  const { records, deleteRecord } = useRecords();
+interface HomeProps {
+  recordsCtx: ReturnType<typeof useRecords>;
+}
+
+export function Home({ recordsCtx }: HomeProps) {
+  const { records, loading, deleteRecord } = recordsCtx;
   const [activeCategory, setActiveCategory] = useState<RaceCategory | 'すべて'>('すべて');
 
   const pbRecords = getPBRecords(records);
@@ -19,6 +24,14 @@ export function Home() {
     activeCategory === 'すべて'
       ? sortedRecords
       : sortedRecords.filter((r) => r.category === activeCategory);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="text-[#CCC] text-sm">読み込み中...</div>
+      </div>
+    );
+  }
 
   return (
     <div>

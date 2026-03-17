@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useParams } from 'wouter';
-import { useRecords } from '../hooks/useRecords';
+import type { useRecords } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
 import type { RaceCategory } from '../types';
 import { TimeSpinner } from '../components/TimeSpinner';
 import { SeikoTimerPreview } from '../components/SeikoTimerPreview';
 
-export function EditRecord() {
+interface EditRecordProps {
+  recordsCtx: ReturnType<typeof useRecords>;
+}
+
+export function EditRecord({ recordsCtx }: EditRecordProps) {
   const [, navigate] = useLocation();
   const params = useParams<{ id: string }>();
-  const { getRecord, updateRecord } = useRecords();
+  const { getRecord, updateRecord } = recordsCtx;
 
   const record = getRecord(params.id);
 
@@ -50,10 +54,10 @@ export function EditRecord() {
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    updateRecord(params.id, {
+    await updateRecord(params.id, {
       category, hours, minutes, seconds,
       raceName: raceName.trim(),
       raceUrl: raceUrl.trim() || undefined,

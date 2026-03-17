@@ -1,12 +1,32 @@
 import { Switch, Route } from 'wouter';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { AddRecord } from './pages/AddRecord';
 import { EditRecord } from './pages/EditRecord';
 import { PublicProfile } from './pages/PublicProfile';
 import { Profile } from './pages/Profile';
+import { Login } from './pages/Login';
+import { useRecords, useUserProfile } from './hooks/useRecords';
 
-function App() {
+function AppInner() {
+  const { user, loading: authLoading } = useAuth();
+  const recordsCtx = useRecords(user?.id);
+  const profileCtx = useUserProfile(user?.id);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F6] flex items-center justify-center">
+        <span
+          className="text-[#FFC200] text-2xl font-black tracking-widest"
+          style={{ fontFamily: "'Orbitron', sans-serif" }}
+        >
+          KIZARM
+        </span>
+      </div>
+    );
+  }
+
   return (
     <Switch>
       <Route path="/u/:name">
@@ -29,21 +49,33 @@ function App() {
         </div>
       </Route>
       <Route>
-        <Layout>
-          <Switch>
-            <Route path="/" component={Home} />
-            <Route path="/add" component={AddRecord} />
-            <Route path="/edit/:id" component={EditRecord} />
-            <Route path="/profile" component={Profile} />
-            <Route>
-              <div className="text-center py-24">
-                <p className="text-[#777]">ページが見つかりません</p>
-              </div>
-            </Route>
-          </Switch>
-        </Layout>
+        {!user ? (
+          <Login />
+        ) : (
+          <Layout>
+            <Switch>
+              <Route path="/" component={() => <Home recordsCtx={recordsCtx} />} />
+              <Route path="/add" component={() => <AddRecord recordsCtx={recordsCtx} />} />
+              <Route path="/edit/:id" component={() => <EditRecord recordsCtx={recordsCtx} />} />
+              <Route path="/profile" component={() => <Profile recordsCtx={recordsCtx} profileCtx={profileCtx} />} />
+              <Route>
+                <div className="text-center py-24">
+                  <p className="text-[#777]">ページが見つかりません</p>
+                </div>
+              </Route>
+            </Switch>
+          </Layout>
+        )}
       </Route>
     </Switch>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   );
 }
 

@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { useParams } from 'wouter';
-import { useRecords, useUserProfile, getPBRecords } from '../hooks/useRecords';
+import { supabase } from '../lib/supabase';
+import { getPBRecords } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
-import type { RaceCategory } from '../types';
+import type { RaceCategory, RaceRecord } from '../types';
 import { LCDDisplay } from '../components/LCDDisplay';
+import type { UserProfile } from '../hooks/useRecords';
 
 function StravaIcon() {
   return (
@@ -33,18 +36,80 @@ function XIcon() {
 export function PublicProfile() {
   const params = useParams<{ name: string }>();
   const urlName = decodeURIComponent(params.name ?? '');
-  const { records } = useRecords();
-  const { profile } = useUserProfile();
+
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [records, setRecords] = useState<RaceRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+
+      // Fetch profile by display_name
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('display_name', urlName)
+        .single();
+
+      if (profileError || !profileData) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+
+      setProfile({
+        displayName: profileData.display_name ?? '',
+        bio: profileData.bio ?? '',
+        stravaUrl: profileData.strava_url ?? '',
+        instagramUrl: profileData.instagram_url ?? '',
+        xUrl: profileData.x_url ?? '',
+      });
+
+      // Fetch records for this user
+      const { data: recordsData } = await supabase
+        .from('race_records')
+        .select('*')
+        .eq('user_id', profileData.id);
+
+      if (recordsData) {
+        const mapped: RaceRecord[] = recordsData.map((row) => ({
+          id: row.id,
+          category: row.category as RaceCategory,
+          hours: row.hours,
+          minutes: row.minutes,
+          seconds: row.seconds,
+          raceName: row.race_name,
+          date: row.date,
+          raceUrl: row.race_url ?? undefined,
+          memo: row.memo ?? undefined,
+          createdAt: row.created_at,
+        }));
+        setRecords(mapped);
+      }
+
+      setLoading(false);
+    })();
+  }, [urlName]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="text-[#CCC] text-sm">読み込み中...</div>
+      </div>
+    );
+  }
+
+  if (notFound || !profile) {
+    return (
+      <div className="max-w-xl mx-auto text-center py-24">
+        <p className="text-[#888] text-sm">ユーザーが見つかりません</p>
+      </div>
+    );
+  }
+
   const pbRecords = getPBRecords(records);
-
-  // If viewing own profile, use full profile data; otherwise show name only
-  const isOwn = profile.displayName === urlName;
-  const displayName = isOwn ? profile.displayName : urlName;
-  const bio = isOwn ? profile.bio : '';
-  const stravaUrl = isOwn ? profile.stravaUrl : '';
-  const instagramUrl = isOwn ? profile.instagramUrl : '';
-  const xUrl = isOwn ? profile.xUrl : '';
-
   const categoriesWithRecords = RACE_CATEGORIES.filter((cat) => pbRecords[cat]);
 
   return (
@@ -53,23 +118,23 @@ export function PublicProfile() {
       <div className="bg-white rounded-2xl border border-[#E8E8E8] p-6 mb-6">
         <div className="text-[#777] text-xs tracking-widest uppercase mb-1">Runner</div>
         <h1 className="text-[#111] text-2xl font-bold mb-2" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-          {displayName || 'Unknown Runner'}
+          {profile.displayName || 'Unknown Runner'}
         </h1>
-        {bio && <p className="text-[#666] text-sm leading-relaxed mb-3">{bio}</p>}
-        {(stravaUrl || instagramUrl || xUrl) && (
+        {profile.bio && <p className="text-[#666] text-sm leading-relaxed mb-3">{profile.bio}</p>}
+        {(profile.stravaUrl || profile.instagramUrl || profile.xUrl) && (
           <div className="flex items-center gap-3">
-            {stravaUrl && (
-              <a href={stravaUrl} target="_blank" rel="noopener noreferrer" className="text-[#FC4C02] hover:opacity-70 transition-opacity" title="Strava">
+            {profile.stravaUrl && (
+              <a href={profile.stravaUrl} target="_blank" rel="noopener noreferrer" className="text-[#FC4C02] hover:opacity-70 transition-opacity" title="Strava">
                 <StravaIcon />
               </a>
             )}
-            {instagramUrl && (
-              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="text-[#E1306C] hover:opacity-70 transition-opacity" title="Instagram">
+            {profile.instagramUrl && (
+              <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-[#E1306C] hover:opacity-70 transition-opacity" title="Instagram">
                 <InstagramIcon />
               </a>
             )}
-            {xUrl && (
-              <a href={xUrl} target="_blank" rel="noopener noreferrer" className="text-[#111] hover:opacity-60 transition-opacity" title="X">
+            {profile.xUrl && (
+              <a href={profile.xUrl} target="_blank" rel="noopener noreferrer" className="text-[#111] hover:opacity-60 transition-opacity" title="X">
                 <XIcon />
               </a>
             )}
@@ -100,28 +165,16 @@ export function PublicProfile() {
             const record = pbRecords[cat as RaceCategory];
             if (!record) return null;
             return (
-              <div
-                key={cat}
-                className="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden flex items-center gap-4 px-4 py-3"
-              >
-                <div
-                  className="rounded-lg overflow-hidden shrink-0"
+              <div key={cat} className="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden flex items-center gap-4 px-4 py-3">
+                <div className="rounded-lg overflow-hidden shrink-0"
                   style={{
                     background: 'linear-gradient(160deg, #FFD000 0%, #FFC200 50%, #E6A800 100%)',
                     padding: '4px 6px 2px',
                     boxShadow: '0 3px 0 #B38600',
                   }}
                 >
-                  <div
-                    className="rounded px-2 py-1"
-                    style={{ background: '#0A0A00', border: '2px solid #8B6000' }}
-                  >
-                    <LCDDisplay
-                      hours={record.hours}
-                      minutes={record.minutes}
-                      seconds={record.seconds}
-                      size="sm"
-                    />
+                  <div className="rounded px-2 py-1" style={{ background: '#0A0A00', border: '2px solid #8B6000' }}>
+                    <LCDDisplay hours={record.hours} minutes={record.minutes} seconds={record.seconds} size="sm" />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">

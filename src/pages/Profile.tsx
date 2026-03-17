@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
-import { useUserProfile, useRecords, getPBRecords } from '../hooks/useRecords';
-import type { UserProfile } from '../hooks/useRecords';
+import { getPBRecords } from '../hooks/useRecords';
+import type { useRecords, useUserProfile, UserProfile } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
 import type { RaceCategory } from '../types';
 import { LCDDisplay } from '../components/LCDDisplay';
@@ -32,16 +32,21 @@ function XIcon() {
   );
 }
 
-export function Profile() {
-  const { profile, setProfile } = useUserProfile();
-  const { records } = useRecords();
+interface ProfileProps {
+  recordsCtx: ReturnType<typeof useRecords>;
+  profileCtx: ReturnType<typeof useUserProfile>;
+}
+
+export function Profile({ recordsCtx, profileCtx }: ProfileProps) {
+  const { records } = recordsCtx;
+  const { profile, setProfile } = profileCtx;
   const pbRecords = getPBRecords(records);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<UserProfile>(profile);
   const categoriesWithRecords = RACE_CATEGORIES.filter((cat) => pbRecords[cat]);
 
-  const handleSave = () => {
-    setProfile(form);
+  const handleSave = async () => {
+    await setProfile(form);
     setEditing(false);
   };
 
@@ -133,39 +138,23 @@ export function Profile() {
                 {profile.bio && (
                   <p className="text-[#666] text-sm mt-2 leading-relaxed">{profile.bio}</p>
                 )}
-                {/* SNS links */}
                 {(profile.stravaUrl || profile.instagramUrl || profile.xUrl) && (
                   <div className="flex items-center gap-3 mt-3">
                     {profile.stravaUrl && (
-                      <a
-                        href={profile.stravaUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#FC4C02] hover:opacity-70 transition-opacity"
-                        title="Strava"
-                      >
+                      <a href={profile.stravaUrl} target="_blank" rel="noopener noreferrer"
+                        className="text-[#FC4C02] hover:opacity-70 transition-opacity" title="Strava">
                         <StravaIcon />
                       </a>
                     )}
                     {profile.instagramUrl && (
-                      <a
-                        href={profile.instagramUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#E1306C] hover:opacity-70 transition-opacity"
-                        title="Instagram"
-                      >
+                      <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer"
+                        className="text-[#E1306C] hover:opacity-70 transition-opacity" title="Instagram">
                         <InstagramIcon />
                       </a>
                     )}
                     {profile.xUrl && (
-                      <a
-                        href={profile.xUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#111] hover:opacity-60 transition-opacity"
-                        title="X"
-                      >
+                      <a href={profile.xUrl} target="_blank" rel="noopener noreferrer"
+                        className="text-[#111] hover:opacity-60 transition-opacity" title="X">
                         <XIcon />
                       </a>
                     )}
@@ -188,7 +177,6 @@ export function Profile() {
             </button>
           )}
         </div>
-
       </div>
 
       {/* PB Records */}
@@ -221,28 +209,16 @@ export function Profile() {
             const record = pbRecords[cat as RaceCategory];
             if (!record) return null;
             return (
-              <div
-                key={cat}
-                className="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden flex items-center gap-4 px-4 py-3"
-              >
-                <div
-                  className="rounded-lg overflow-hidden shrink-0"
+              <div key={cat} className="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden flex items-center gap-4 px-4 py-3">
+                <div className="rounded-lg overflow-hidden shrink-0"
                   style={{
                     background: 'linear-gradient(160deg, #FFD000 0%, #FFC200 50%, #E6A800 100%)',
                     padding: '4px 6px 2px',
                     boxShadow: '0 3px 0 #B38600',
                   }}
                 >
-                  <div
-                    className="rounded px-2 py-1"
-                    style={{ background: '#0A0A00', border: '2px solid #8B6000' }}
-                  >
-                    <LCDDisplay
-                      hours={record.hours}
-                      minutes={record.minutes}
-                      seconds={record.seconds}
-                      size="sm"
-                    />
+                  <div className="rounded px-2 py-1" style={{ background: '#0A0A00', border: '2px solid #8B6000' }}>
+                    <LCDDisplay hours={record.hours} minutes={record.minutes} seconds={record.seconds} size="sm" />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">

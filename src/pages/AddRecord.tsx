@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { useRecords } from '../hooks/useRecords';
+import type { useRecords } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
 import type { RaceCategory } from '../types';
 import { TimeSpinner } from '../components/TimeSpinner';
 import { SeikoTimerPreview } from '../components/SeikoTimerPreview';
 
-export function AddRecord() {
+interface AddRecordProps {
+  recordsCtx: ReturnType<typeof useRecords>;
+}
+
+export function AddRecord({ recordsCtx }: AddRecordProps) {
   const [, navigate] = useLocation();
-  const { addRecord } = useRecords();
+  const { addRecord } = recordsCtx;
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -22,10 +26,10 @@ export function AddRecord() {
   const [memo, setMemo] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    addRecord({
+    await addRecord({
       category, hours, minutes, seconds,
       raceName: raceName.trim(),
       raceUrl: raceUrl.trim() || undefined,
