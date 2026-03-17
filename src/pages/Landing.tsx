@@ -8,36 +8,36 @@ function DemoCard({ hours, minutes, seconds, name, cat, date, pb }: {
   name: string; cat: string; date: string; pb?: boolean;
 }) {
   return (
-    <div style={{ filter: pb ? 'drop-shadow(0 0 10px rgba(255,194,0,0.4))' : undefined }}>
+    <div style={{ filter: pb ? 'drop-shadow(0 0 12px rgba(255,194,0,0.45))' : undefined }}>
       <div className="rounded-xl overflow-hidden"
         style={{
           background: 'linear-gradient(160deg, #FFD000 0%, #FFC200 50%, #E6A800 100%)',
-          padding: '6px 8px 0px 8px',
+          padding: '8px 10px 0px 10px',
           boxShadow: pb
-            ? '0 4px 0 #B38600, 0 6px 16px rgba(255,194,0,0.4)'
-            : '0 4px 0 #C49400, 0 4px 12px rgba(0,0,0,0.15)',
+            ? '0 4px 0 #B38600, 0 6px 20px rgba(255,194,0,0.35)'
+            : '0 4px 0 #C49400, 0 4px 14px rgba(0,0,0,0.12)',
         }}
       >
         <div className="rounded-lg overflow-hidden relative"
-          style={{ background: '#0A0A00', border: '3px solid #8B6000', padding: '10px 6px' }}>
+          style={{ background: '#0A0A00', border: '3px solid #8B6000', padding: '14px 10px' }}>
           <div className="absolute inset-0 pointer-events-none"
             style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.35) 2px, rgba(0,0,0,0.35) 3px)', zIndex: 1 }} />
           <div className="relative z-[2] flex justify-center">
-            <LCDDisplay hours={hours} minutes={minutes} seconds={seconds} size="sm" glow />
+            <LCDDisplay hours={hours} minutes={minutes} seconds={seconds} size="md" glow />
           </div>
         </div>
-        <div className="flex items-center justify-center px-1 py-1.5">
-          <span className="text-[13px] font-black tracking-[0.15em]" style={{ color: '#3D2400', fontFamily: "'Orbitron', sans-serif" }}>KIZARM</span>
+        <div className="flex items-center justify-center px-1 py-2">
+          <span className="text-[14px] font-black tracking-[0.15em]" style={{ color: '#3D2400', fontFamily: "'Orbitron', sans-serif" }}>KIZARM</span>
         </div>
       </div>
-      <div className="px-2 pt-2 pb-1.5 rounded-b-xl" style={{ background: '#FFFFFF', border: '1px solid #E8E8E8', borderTop: 'none' }}>
-        <div className="flex items-start gap-1 mb-1">
-          <p className="text-[#111] text-[11px] font-semibold leading-tight flex-1 min-w-0 truncate">{name}</p>
+      <div className="px-3 pt-2.5 pb-2 rounded-b-xl" style={{ background: '#FFFFFF', border: '1px solid #E8E8E8', borderTop: 'none' }}>
+        <div className="flex items-start gap-1.5 mb-1">
+          <p className="text-[#111] text-xs font-semibold leading-tight flex-1 min-w-0 truncate">{name}</p>
           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0" style={{ background: '#FFF3CC', color: '#8B6000', border: '1px solid #FFC200' }}>{cat}</span>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-[#888] text-[10px]">{date}</p>
-          {pb && <span className="text-[9px] font-black text-[#FFC200]">PB 🏅</span>}
+          {pb && <span className="text-[10px] font-black text-[#FFC200]">PB 🏅</span>}
         </div>
       </div>
     </div>
@@ -156,13 +156,20 @@ export function Landing() {
         )}
 
         {/* Demo cards */}
-        <div className="relative max-w-xs mx-auto">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="relative max-w-xl mx-auto">
+          {/* Row 1: PBs */}
+          <div className="grid grid-cols-2 gap-5 mb-5">
             <DemoCard hours={2} minutes={58} seconds={42} name="東京マラソン" cat="フル" date="2025-03-02" pb />
             <DemoCard hours={1} minutes={22} seconds={8} name="横浜マラソン" cat="ハーフ" date="2024-10-20" pb />
           </div>
+          {/* Row 2: more records, faded */}
+          <div className="grid grid-cols-3 gap-4 opacity-50 scale-95 origin-top">
+            <DemoCard hours={3} minutes={12} seconds={55} name="水戸黄門漫遊マラソン" cat="フル" date="2024-11-03" />
+            <DemoCard hours={2} minutes={59} seconds={18} name="ソウルマラソン" cat="フル" date="2024-03-17" />
+            <DemoCard hours={3} minutes={8} seconds={44} name="京都マラソン" cat="フル" date="2025-03-16" />
+          </div>
           {/* Fade out */}
-          <div className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
+          <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
             style={{ background: 'linear-gradient(transparent, #F8F8F6)' }} />
         </div>
       </section>
