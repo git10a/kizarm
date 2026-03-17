@@ -38,26 +38,32 @@ function XIcon() {
 
 function MedalIcon({ size = 14 }: { size?: number }) {
   const cx = 50, cy = 47;
-  const leftAngles  = [115, 133, 151, 169, 187, 205, 223, 241, 259, 270];
-  const rightAngles = [ 65,  47,  29,  11,  -7, -25, -43, -61, -79, -90];
-  const outerLeaf = 'M 0 0 C -5 -3,-5 -17, 0 -20 C 5 -17, 5 -3, 0 0 Z';
-  const innerLeaf = 'M 0 0 C -3 -1.5,-3 -9.5, 0 -12 C 3 -9.5, 3 -1.5, 0 0 Z';
-  const renderLeaves = (angles: number[], r: number, d: string, offset = 0) =>
+  // 下部に90°の開口部を作る: 左135°→270°, 右45°→-90°
+  const leftAngles  = [135, 152, 169, 186, 203, 220, 237, 254, 270];
+  const rightAngles = [ 45,  28,  11,  -6, -23, -40, -57, -74, -90];
+  // 外側の葉（外側を向く）・内側の葉（内側＝中心を向く）
+  const outerLeaf = 'M 0 0 C -7 -2,-7 -16, 0 -19 C 7 -16, 7 -2, 0 0 Z';
+  const innerLeaf = 'M 0 0 C -5 -1.5,-5 -11, 0 -13 C 5 -11, 5 -1.5, 0 0 Z';
+  const renderBranch = (angles: number[]) =>
     angles.map((θ) => {
       const a = θ * Math.PI / 180;
+      const ox = (cx + 30 * Math.cos(a)).toFixed(2);
+      const oy = (cy + 30 * Math.sin(a)).toFixed(2);
+      const ix = (cx + 21 * Math.cos(a)).toFixed(2);
+      const iy = (cy + 21 * Math.sin(a)).toFixed(2);
       return (
-        <path key={`${r}${θ}`} d={d}
-          transform={`translate(${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}) rotate(${θ + 90 + offset})`} />
+        <g key={θ}>
+          <path d={outerLeaf} transform={`translate(${ox},${oy}) rotate(${θ + 90})`} />
+          <path d={innerLeaf} transform={`translate(${ix},${iy}) rotate(${θ - 90})`} />
+        </g>
       );
     });
   return (
-    <svg width={size} height={size} viewBox="0 0 100 95" fill="#FFC200" style={{ overflow: 'visible' }}>
-      {renderLeaves(leftAngles.slice(0, -1), 19, innerLeaf, 20)}
-      {renderLeaves(rightAngles.slice(0, -1), 19, innerLeaf, -20)}
-      {renderLeaves(leftAngles, 26, outerLeaf)}
-      {renderLeaves(rightAngles, 26, outerLeaf)}
-      <path d="M 62 72 C 52 81,43 86,33 92" stroke="#FFC200" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-      <path d="M 38 72 C 48 81,57 86,67 92" stroke="#FFC200" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <svg width={size} height={size} viewBox="0 0 100 96" fill="#FFC200" style={{ overflow: 'visible' }}>
+      {renderBranch(leftAngles)}
+      {renderBranch(rightAngles)}
+      <path d="M 68 70 C 58 80,47 86,35 93" stroke="#FFC200" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+      <path d="M 32 70 C 42 80,53 86,65 93" stroke="#FFC200" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
     </svg>
   );
 }
