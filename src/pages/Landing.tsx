@@ -3,10 +3,12 @@ import { supabase } from '../lib/supabase';
 import { LCDDisplay } from '../components/LCDDisplay';
 
 // ── Mock card for demo ───────────────────────────────────
-function DemoCard({ hours, minutes, seconds, name, cat, date, pb }: {
+function DemoCard({ hours, minutes, seconds, name, cat, date, pb, size = 'md' }: {
   hours: number; minutes: number; seconds: number;
   name: string; cat: string; date: string; pb?: boolean;
+  size?: 'sm' | 'md';
 }) {
+  const pad = size === 'sm' ? '10px 8px' : '14px 10px';
   return (
     <div style={{ filter: pb ? 'drop-shadow(0 0 12px rgba(255,194,0,0.45))' : undefined }}>
       <div className="rounded-xl overflow-hidden"
@@ -19,25 +21,25 @@ function DemoCard({ hours, minutes, seconds, name, cat, date, pb }: {
         }}
       >
         <div className="rounded-lg overflow-hidden relative"
-          style={{ background: '#0A0A00', border: '3px solid #8B6000', padding: '14px 10px' }}>
+          style={{ background: '#0A0A00', border: '3px solid #8B6000', padding: pad }}>
           <div className="absolute inset-0 pointer-events-none"
             style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.35) 2px, rgba(0,0,0,0.35) 3px)', zIndex: 1 }} />
-          <div className="relative z-[2] flex justify-center">
-            <LCDDisplay hours={hours} minutes={minutes} seconds={seconds} size="md" glow />
+          <div className="relative z-[2] flex justify-center overflow-hidden">
+            <LCDDisplay hours={hours} minutes={minutes} seconds={seconds} size={size} glow />
           </div>
         </div>
-        <div className="flex items-center justify-center px-1 py-2">
-          <span className="text-[14px] font-black tracking-[0.15em]" style={{ color: '#3D2400', fontFamily: "'Orbitron', sans-serif" }}>KIZARM</span>
+        <div className="flex items-center justify-center px-1 py-1.5">
+          <span className="text-[13px] font-black tracking-[0.15em]" style={{ color: '#3D2400', fontFamily: "'Orbitron', sans-serif" }}>KIZARM</span>
         </div>
       </div>
-      <div className="px-3 pt-2.5 pb-2 rounded-b-xl" style={{ background: '#FFFFFF', border: '1px solid #E8E8E8', borderTop: 'none' }}>
-        <div className="flex items-start gap-1.5 mb-1">
-          <p className="text-[#111] text-xs font-semibold leading-tight flex-1 min-w-0 truncate">{name}</p>
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0" style={{ background: '#FFF3CC', color: '#8B6000', border: '1px solid #FFC200' }}>{cat}</span>
+      <div className="px-2 pt-2 pb-1.5 rounded-b-xl" style={{ background: '#FFFFFF', border: '1px solid #E8E8E8', borderTop: 'none' }}>
+        <div className="flex items-start gap-1 mb-1">
+          <p className="text-[#111] text-[11px] font-semibold leading-tight flex-1 min-w-0 truncate">{name}</p>
+          <span className="text-[9px] font-bold px-1 py-0.5 rounded shrink-0" style={{ background: '#FFF3CC', color: '#8B6000', border: '1px solid #FFC200' }}>{cat}</span>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-[#888] text-[10px]">{date}</p>
-          {pb && <span className="text-[10px] font-black text-[#FFC200]">PB 🏅</span>}
+          {pb && <span className="text-[10px] font-black text-[#FFC200]">🏅</span>}
         </div>
       </div>
     </div>
@@ -83,7 +85,7 @@ export function Landing() {
     <div className="min-h-screen bg-[#F8F8F6] text-[#111]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
 
       {/* Header */}
-      <header className="px-6 py-5 flex items-center justify-between max-w-5xl mx-auto border-b border-[#E8E8E8] bg-white">
+      <header className="px-6 py-5 flex items-center justify-between w-full border-b border-[#E8E8E8] bg-white">
         <span className="text-[#FFC200] text-xl font-black tracking-widest" style={{ fontFamily: "'Orbitron', sans-serif" }}>KIZARM</span>
         <button onClick={() => setShowEmailForm(true)}
           className="px-4 py-2 text-sm font-semibold text-[#888] hover:text-[#111] transition-colors">
@@ -164,9 +166,9 @@ export function Landing() {
           </div>
           {/* Row 2: more records, faded */}
           <div className="grid grid-cols-3 gap-4 opacity-50 scale-95 origin-top">
-            <DemoCard hours={3} minutes={12} seconds={55} name="水戸黄門漫遊マラソン" cat="フル" date="2024-11-03" />
-            <DemoCard hours={2} minutes={59} seconds={18} name="ソウルマラソン" cat="フル" date="2024-03-17" />
-            <DemoCard hours={3} minutes={8} seconds={44} name="京都マラソン" cat="フル" date="2025-03-16" />
+            <DemoCard hours={3} minutes={12} seconds={55} name="水戸黄門漫遊マラソン" cat="フル" date="2024-11-03" size="sm" />
+            <DemoCard hours={2} minutes={59} seconds={18} name="ソウルマラソン" cat="フル" date="2024-03-17" size="sm" />
+            <DemoCard hours={3} minutes={8} seconds={44} name="京都マラソン" cat="フル" date="2025-03-16" size="sm" />
           </div>
           {/* Fade out */}
           <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
