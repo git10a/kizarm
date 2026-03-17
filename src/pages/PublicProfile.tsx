@@ -108,8 +108,8 @@ function PBCard({ record, isOwner, onDelete }: {
               style={{ fontFamily: "'Orbitron', sans-serif", textShadow: '0 0 8px rgba(255,194,0,0.6)', letterSpacing: '0.04em' }}>
               {record.raceName}
             </p>
-            <p className="text-[#555] text-[10px] tracking-widest"
-              style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            <p className="text-[10px]"
+              style={{ fontFamily: "'DSEG7', 'Courier New', monospace", color: '#888', letterSpacing: '0.04em' }}>
               {record.date}
             </p>
           </div>
