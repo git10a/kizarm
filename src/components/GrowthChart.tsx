@@ -44,7 +44,7 @@ export function GrowthChart({ records }: GrowthChartProps) {
     (cat) => records.filter((r) => r.category === cat).length >= 2
   );
 
-  const defaultCat = chartableCategories.includes('フルマラソン')
+  const defaultCat = (chartableCategories as string[]).includes('フルマラソン')
     ? 'フルマラソン'
     : chartableCategories[0] ?? '';
   const [activeCategory, setActiveCategory] = useState<string>(defaultCat);
