@@ -15,7 +15,7 @@ export function EditRecord({ recordsCtx }: EditRecordProps) {
   const [, navigate] = useLocation();
   const { user } = useAuth();
   const params = useParams<{ id: string }>();
-  const { getRecord, updateRecord } = recordsCtx;
+  const { getRecord, updateRecord, loading: recordsLoading } = recordsCtx;
   const backUrl = user ? `/u/${user.id}` : '/';
 
   const record = getRecord(params.id);
@@ -44,6 +44,14 @@ export function EditRecord({ recordsCtx }: EditRecordProps) {
       setInitialized(true);
     }
   }, [record, initialized]);
+
+  if (recordsLoading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="text-[#CCC] text-sm">読み込み中...</div>
+      </div>
+    );
+  }
 
   if (!record) {
     return (
