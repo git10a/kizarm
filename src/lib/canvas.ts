@@ -9,11 +9,10 @@ function formatTime(record: RaceRecord): string {
 }
 
 const CATEGORY_SHORT: Record<string, string> = {
-  'フルマラソン': 'フル',
-  'ハーフマラソン': 'ハーフ',
-  '10km': '10km',
-  '5km': '5km',
-  '3km': '3km',
+  'フル': 'フル',
+  'ハーフ': 'ハーフ',
+  '10K': '10K',
+  '5K': '5K',
   'その他': 'その他',
 };
 

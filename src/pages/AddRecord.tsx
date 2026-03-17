@@ -16,7 +16,7 @@ export function AddRecord({ recordsCtx }: AddRecordProps) {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const [category, setCategory] = useState<RaceCategory>('フルマラソン');
+  const [category, setCategory] = useState<RaceCategory>('フル');
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);

@@ -25,11 +25,10 @@ function formatDateShort(date: string): string {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'フルマラソン': '#FFC200',
-  'ハーフマラソン': '#EF4444',
-  '10km': '#10B981',
-  '5km': '#3B82F6',
-  '3km': '#8B5CF6',
+  'フル': '#FFC200',
+  'ハーフ': '#EF4444',
+  '10K': '#10B981',
+  '5K': '#3B82F6',
   'その他': '#6B7280',
 };
 
@@ -44,8 +43,8 @@ export function GrowthChart({ records }: GrowthChartProps) {
     (cat) => records.filter((r) => r.category === cat).length >= 2
   );
 
-  const defaultCat = (chartableCategories as string[]).includes('フルマラソン')
-    ? 'フルマラソン'
+  const defaultCat = (chartableCategories as string[]).includes('フル')
+    ? 'フル'
     : chartableCategories[0] ?? '';
   const [activeCategory, setActiveCategory] = useState<string>(defaultCat);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; name: string; time: string; containerWidth: number } | null>(null);

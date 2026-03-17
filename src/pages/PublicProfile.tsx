@@ -34,6 +34,22 @@ function XIcon() {
   );
 }
 
+function MedalIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      {/* ribbon left */}
+      <path d="M8 2L5 8l5 3L8 2z" fill="#FFC200" opacity="0.85" />
+      {/* ribbon right */}
+      <path d="M16 2L19 8l-5 3L16 2z" fill="#FFC200" opacity="0.85" />
+      {/* medal circle */}
+      <circle cx="12" cy="15" r="7" fill="#FFC200" />
+      <circle cx="12" cy="15" r="5.5" fill="#FFD84D" />
+      {/* star */}
+      <path d="M12 11l.9 2.6H16l-2.5 1.8.9 2.6L12 16.4l-2.4 1.6.9-2.6L8 13.6h3.1z" fill="#B38600" />
+    </svg>
+  );
+}
+
 function formatTime(hours: number, minutes: number, seconds: number) {
   if (hours > 0) {
     return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
@@ -315,9 +331,7 @@ export function PublicProfile() {
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#FFF3CC', color: '#8B6000', border: '1px solid #FFC200' }}>
                         {cat}
                       </span>
-                      <span className="text-[9px] font-black px-1 py-0.5 rounded" style={{ background: '#111', color: '#FFC200', border: '1px solid #FFC200' }}>
-                        PB
-                      </span>
+                      <span title="Personal Best"><MedalIcon size={16} /></span>
                     </div>
                     <p className="text-[#111] text-xs font-semibold truncate">{record.raceName}</p>
                     <p className="text-[#888] text-[10px]">{record.date}</p>

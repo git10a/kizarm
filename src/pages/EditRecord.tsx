@@ -17,7 +17,7 @@ export function EditRecord({ recordsCtx }: EditRecordProps) {
 
   const record = getRecord(params.id);
 
-  const [category, setCategory] = useState<RaceCategory>('フルマラソン');
+  const [category, setCategory] = useState<RaceCategory>('フル');
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);

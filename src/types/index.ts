@@ -12,18 +12,16 @@ export interface RaceRecord {
 }
 
 export type RaceCategory =
-  | 'フルマラソン'
-  | 'ハーフマラソン'
-  | '10km'
-  | '5km'
-  | '3km'
+  | 'フル'
+  | 'ハーフ'
+  | '10K'
+  | '5K'
   | 'その他';
 
 export const RACE_CATEGORIES: RaceCategory[] = [
-  'フルマラソン',
-  'ハーフマラソン',
-  '10km',
-  '5km',
-  '3km',
+  'フル',
+  'ハーフ',
+  '10K',
+  '5K',
   'その他',
 ];
