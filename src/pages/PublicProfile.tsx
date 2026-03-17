@@ -173,26 +173,25 @@ export function PublicProfile() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const { data: profileData, error: profileError } = await supabase
-        .from('user_profiles').select('*').eq('id', urlId).single();
+      const [profileRes, recordsRes] = await Promise.all([
+        supabase.from('user_profiles').select('*').eq('id', urlId).single(),
+        supabase.from('race_records').select('*').eq('user_id', urlId).order('date', { ascending: false }),
+      ]);
 
-      if (profileError || !profileData) { setNotFound(true); setLoading(false); return; }
+      if (profileRes.error || !profileRes.data) { setNotFound(true); setLoading(false); return; }
 
       const p: UserProfile = {
-        displayName: profileData.display_name ?? '',
-        bio: profileData.bio ?? '',
-        stravaUrl: profileData.strava_url ?? '',
-        instagramUrl: profileData.instagram_url ?? '',
-        xUrl: profileData.x_url ?? '',
+        displayName: profileRes.data.display_name ?? '',
+        bio: profileRes.data.bio ?? '',
+        stravaUrl: profileRes.data.strava_url ?? '',
+        instagramUrl: profileRes.data.instagram_url ?? '',
+        xUrl: profileRes.data.x_url ?? '',
       };
       setProfile(p);
       setForm(p);
 
-      const { data: recordsData } = await supabase
-        .from('race_records').select('*').eq('user_id', profileData.id).order('date', { ascending: false });
-
-      if (recordsData) {
-        setRecords(recordsData.map((row) => ({
+      if (recordsRes.data) {
+        setRecords(recordsRes.data.map((row) => ({
           id: row.id,
           category: row.category as RaceCategory,
           hours: row.hours,

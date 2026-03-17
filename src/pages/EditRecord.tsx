@@ -1,21 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useParams } from 'wouter';
 import { useAuth } from '../contexts/AuthContext';
-import type { useRecords } from '../hooks/useRecords';
+import { useRecords } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
 import type { RaceCategory } from '../types';
 import { TimeSpinner } from '../components/TimeSpinner';
 import { SeikoTimerPreview } from '../components/SeikoTimerPreview';
 
-interface EditRecordProps {
-  recordsCtx: ReturnType<typeof useRecords>;
-}
-
-export function EditRecord({ recordsCtx }: EditRecordProps) {
+export function EditRecord() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
   const params = useParams<{ id: string }>();
-  const { getRecord, updateRecord, loading: recordsLoading } = recordsCtx;
+  const { getRecord, updateRecord, loading: recordsLoading } = useRecords(user?.id);
   const backUrl = user ? `/u/${user.id}` : '/';
 
   const record = getRecord(params.id);

@@ -2,7 +2,6 @@ import { lazy, Suspense } from 'react';
 import { Switch, Route, Redirect } from 'wouter';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
-import { useRecords } from './hooks/useRecords';
 
 const AddRecord = lazy(() => import('./pages/AddRecord').then(m => ({ default: m.AddRecord })));
 const EditRecord = lazy(() => import('./pages/EditRecord').then(m => ({ default: m.EditRecord })));
@@ -19,7 +18,6 @@ const LoadingFallback = (
 
 function AuthenticatedRoutes() {
   const { user } = useAuth();
-  const recordsCtx = useRecords(user!.id);
 
   return (
     <Switch>
@@ -27,10 +25,10 @@ function AuthenticatedRoutes() {
         <Layout><Suspense fallback={null}><PublicProfile /></Suspense></Layout>
       </Route>
       <Route path="/add">
-        <Layout><Suspense fallback={null}><AddRecord recordsCtx={recordsCtx} /></Suspense></Layout>
+        <Layout><Suspense fallback={null}><AddRecord /></Suspense></Layout>
       </Route>
       <Route path="/edit/:id">
-        <Layout><Suspense fallback={null}><EditRecord recordsCtx={recordsCtx} /></Suspense></Layout>
+        <Layout><Suspense fallback={null}><EditRecord /></Suspense></Layout>
       </Route>
       <Route path="/">
         <Redirect to={`/u/${user!.id}`} />

@@ -1,20 +1,16 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../contexts/AuthContext';
-import type { useRecords } from '../hooks/useRecords';
+import { useRecords } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
 import type { RaceCategory } from '../types';
 import { TimeSpinner } from '../components/TimeSpinner';
 import { SeikoTimerPreview } from '../components/SeikoTimerPreview';
 
-interface AddRecordProps {
-  recordsCtx: ReturnType<typeof useRecords>;
-}
-
-export function AddRecord({ recordsCtx }: AddRecordProps) {
+export function AddRecord() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
-  const { addRecord } = recordsCtx;
+  const { addRecord } = useRecords(user?.id);
   const backUrl = user ? `/u/${user.id}` : '/';
 
   const today = new Date().toISOString().split('T')[0];

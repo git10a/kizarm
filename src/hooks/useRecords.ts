@@ -3,9 +3,6 @@ import { nanoid } from 'nanoid';
 import type { RaceRecord, RaceCategory } from '../types';
 import { supabase } from '../lib/supabase';
 
-const RECORDS_KEY = 'kizarm_records';
-const USER_PROFILE_KEY = 'kizarm_user_profile';
-const RUNNER_NAME_KEY = 'kizarm_runner_name';
 
 export interface UserProfile {
   displayName: string;
@@ -81,27 +78,7 @@ export function useRecords(userId: string | undefined) {
         .order('created_at', { ascending: false });
 
       if (!error && data) {
-        const fetched = (data as DbRow[]).map(toRecord);
-
-        // Auto-migrate localStorage data on first use
-        if (fetched.length === 0) {
-          const raw = localStorage.getItem(RECORDS_KEY);
-          if (raw) {
-            try {
-              const local = JSON.parse(raw) as RaceRecord[];
-              if (local.length > 0) {
-                const rows = local.map((r) => toDbRow(r, userId));
-                await supabase.from('race_records').upsert(rows);
-                localStorage.removeItem(RECORDS_KEY);
-                setRecords(local);
-                setLoading(false);
-                return;
-              }
-            } catch {}
-          }
-        }
-
-        setRecords(fetched);
+        setRecords((data as DbRow[]).map(toRecord));
       }
       setLoading(false);
     })();
@@ -121,20 +98,24 @@ export function useRecords(userId: string | undefined) {
 
   const updateRecord = useCallback(
     async (id: string, data: Omit<RaceRecord, 'id' | 'createdAt'>): Promise<void> => {
+      let updatedRecord: RaceRecord | undefined;
       setRecords((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, ...data } : r))
+        prev.map((r) => {
+          if (r.id === id) {
+            updatedRecord = { ...r, ...data };
+            return updatedRecord;
+          }
+          return r;
+        })
       );
-      if (userId) {
-        const existing = records.find((r) => r.id === id);
-        if (existing) {
-          await supabase
-            .from('race_records')
-            .update(toDbRow({ ...existing, ...data }, userId))
-            .eq('id', id);
-        }
+      if (userId && updatedRecord) {
+        await supabase
+          .from('race_records')
+          .update(toDbRow(updatedRecord, userId))
+          .eq('id', id);
       }
     },
-    [userId, records]
+    [userId]
   );
 
   const deleteRecord = useCallback(
@@ -188,25 +169,6 @@ export function useUserProfile(userId: string | undefined) {
           xUrl: data.x_url ?? '',
         });
       } else {
-        // Auto-migrate from localStorage
-        const raw = localStorage.getItem(USER_PROFILE_KEY);
-        if (raw) {
-          try {
-            const local = JSON.parse(raw) as UserProfile;
-            setProfileState(local);
-            await supabase.from('user_profiles').upsert({
-              id: userId,
-              display_name: local.displayName,
-              bio: local.bio,
-              strava_url: local.stravaUrl,
-              instagram_url: local.instagramUrl,
-              x_url: local.xUrl,
-            });
-            localStorage.removeItem(USER_PROFILE_KEY);
-            localStorage.removeItem(RUNNER_NAME_KEY);
-            return;
-          } catch {}
-        }
         setProfileState(defaultProfile);
       }
     })();
@@ -248,9 +210,4 @@ export function getPBRecords(records: RaceRecord[]): Record<RaceCategory, RaceRe
     }
   }
   return pb as Record<RaceCategory, RaceRecord | undefined>;
-}
-
-export function isPB(record: RaceRecord, records: RaceRecord[]): boolean {
-  const pb = getPBRecords(records);
-  return pb[record.category]?.id === record.id;
 }
