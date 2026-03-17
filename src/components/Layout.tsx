@@ -7,7 +7,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#F8F8F6] text-[#111] font-[Space_Grotesk,sans-serif]">
@@ -21,7 +21,7 @@ export function Layout({ children }: LayoutProps) {
             </span>
           </Link>
           <div className="flex items-center gap-1">
-            <Link href="/profile">
+            <Link href={`/u/${user?.id}`}>
               <button
                 title="プロフィール"
                 className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#EFEFEF] transition-colors text-[#888] hover:text-[#333]"

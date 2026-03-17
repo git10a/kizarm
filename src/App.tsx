@@ -5,14 +5,12 @@ import { Home } from './pages/Home';
 import { AddRecord } from './pages/AddRecord';
 import { EditRecord } from './pages/EditRecord';
 import { PublicProfile } from './pages/PublicProfile';
-import { Profile } from './pages/Profile';
 import { Login } from './pages/Login';
-import { useRecords, useUserProfile } from './hooks/useRecords';
+import { useRecords } from './hooks/useRecords';
 
 function AppInner() {
   const { user, loading: authLoading } = useAuth();
   const recordsCtx = useRecords(user?.id);
-  const profileCtx = useUserProfile(user?.id);
 
   if (authLoading) {
     return (
@@ -57,7 +55,6 @@ function AppInner() {
               <Route path="/" component={() => <Home recordsCtx={recordsCtx} />} />
               <Route path="/add" component={() => <AddRecord recordsCtx={recordsCtx} />} />
               <Route path="/edit/:id" component={() => <EditRecord recordsCtx={recordsCtx} />} />
-              <Route path="/profile" component={() => <Profile recordsCtx={recordsCtx} profileCtx={profileCtx} />} />
               <Route>
                 <div className="text-center py-24">
                   <p className="text-[#777]">ページが見つかりません</p>

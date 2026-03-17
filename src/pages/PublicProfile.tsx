@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'wouter';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import { getPBRecords } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
 import type { RaceCategory, RaceRecord } from '../types';
@@ -35,12 +36,21 @@ function XIcon() {
 
 export function PublicProfile() {
   const params = useParams<{ name: string }>();
-  const urlName = decodeURIComponent(params.name ?? '');
+  const urlId = decodeURIComponent(params.name ?? '');
+  const { user } = useAuth();
+  const isOwner = !!user && user.id === urlId;
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [records, setRecords] = useState<RaceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+
+  // Edit state (owner only)
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState<UserProfile | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const profileUrl = `${window.location.origin}/u/${urlId}`;
 
   useEffect(() => {
     (async () => {
@@ -50,7 +60,7 @@ export function PublicProfile() {
       const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('id', urlName)
+        .eq('id', urlId)
         .single();
 
       if (profileError || !profileData) {
@@ -59,13 +69,15 @@ export function PublicProfile() {
         return;
       }
 
-      setProfile({
+      const p: UserProfile = {
         displayName: profileData.display_name ?? '',
         bio: profileData.bio ?? '',
         stravaUrl: profileData.strava_url ?? '',
         instagramUrl: profileData.instagram_url ?? '',
         xUrl: profileData.x_url ?? '',
-      });
+      };
+      setProfile(p);
+      setForm(p);
 
       // Fetch records for this user
       const { data: recordsData } = await supabase
@@ -91,7 +103,33 @@ export function PublicProfile() {
 
       setLoading(false);
     })();
-  }, [urlName]);
+  }, [urlId]);
+
+  const handleSave = async () => {
+    if (!form) return;
+    await supabase.from('user_profiles').upsert({
+      id: urlId,
+      display_name: form.displayName,
+      bio: form.bio,
+      strava_url: form.stravaUrl,
+      instagram_url: form.instagramUrl,
+      x_url: form.xUrl,
+    });
+    setProfile(form);
+    setEditing(false);
+  };
+
+  const handleCancel = () => {
+    setForm(profile);
+    setEditing(false);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(profileUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   if (loading) {
     return (
@@ -101,7 +139,7 @@ export function PublicProfile() {
     );
   }
 
-  if (notFound || !profile) {
+  if (notFound || !profile || !form) {
     return (
       <div className="max-w-xl mx-auto text-center py-24">
         <p className="text-[#888] text-sm">ユーザーが見つかりません</p>
@@ -116,40 +154,146 @@ export function PublicProfile() {
     <div className="max-w-xl mx-auto">
       {/* Profile header */}
       <div className="bg-white rounded-2xl border border-[#E8E8E8] p-6 mb-6">
-        <div className="text-[#777] text-xs tracking-widest uppercase mb-1">Runner</div>
-        <h1 className="text-[#111] text-2xl font-bold mb-2" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-          {profile.displayName || 'Unknown Runner'}
-        </h1>
-        {profile.bio && <p className="text-[#666] text-sm leading-relaxed mb-3">{profile.bio}</p>}
-        {(profile.stravaUrl || profile.instagramUrl || profile.xUrl) && (
-          <div className="flex items-center gap-3">
-            {profile.stravaUrl && (
-              <a href={profile.stravaUrl} target="_blank" rel="noopener noreferrer" className="text-[#FC4C02] hover:opacity-70 transition-opacity" title="Strava">
-                <StravaIcon />
-              </a>
-            )}
-            {profile.instagramUrl && (
-              <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-[#E1306C] hover:opacity-70 transition-opacity" title="Instagram">
-                <InstagramIcon />
-              </a>
-            )}
-            {profile.xUrl && (
-              <a href={profile.xUrl} target="_blank" rel="noopener noreferrer" className="text-[#111] hover:opacity-60 transition-opacity" title="X">
-                <XIcon />
-              </a>
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1 min-w-0">
+            {isOwner && editing ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[#888] text-xs mb-1 block">ユーザー名</label>
+                  <input
+                    type="text"
+                    value={form.displayName}
+                    onChange={(e) => setForm({ ...form, displayName: e.target.value })}
+                    placeholder="ランナー名"
+                    autoFocus
+                    className="w-full bg-[#F5F5F5] border border-[#FFC200] rounded-lg px-3 py-2 text-[#111] text-sm focus:outline-none focus:ring-1 focus:ring-[#FFC200]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[#888] text-xs mb-1 block">プロフィール</label>
+                  <textarea
+                    value={form.bio}
+                    onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                    placeholder="自己紹介・目標など..."
+                    rows={3}
+                    className="w-full bg-[#F5F5F5] border border-[#E8E8E8] rounded-lg px-3 py-2 text-[#111] text-sm focus:outline-none focus:ring-1 focus:ring-[#FFC200] resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[#888] text-xs mb-1 block">Strava URL</label>
+                  <input
+                    type="url"
+                    value={form.stravaUrl}
+                    onChange={(e) => setForm({ ...form, stravaUrl: e.target.value })}
+                    placeholder="https://www.strava.com/athletes/..."
+                    className="w-full bg-[#F5F5F5] border border-[#E8E8E8] rounded-lg px-3 py-2 text-[#111] text-sm focus:outline-none focus:ring-1 focus:ring-[#FFC200]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[#888] text-xs mb-1 block">Instagram URL</label>
+                  <input
+                    type="url"
+                    value={form.instagramUrl}
+                    onChange={(e) => setForm({ ...form, instagramUrl: e.target.value })}
+                    placeholder="https://www.instagram.com/..."
+                    className="w-full bg-[#F5F5F5] border border-[#E8E8E8] rounded-lg px-3 py-2 text-[#111] text-sm focus:outline-none focus:ring-1 focus:ring-[#FFC200]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[#888] text-xs mb-1 block">X (Twitter) URL</label>
+                  <input
+                    type="url"
+                    value={form.xUrl}
+                    onChange={(e) => setForm({ ...form, xUrl: e.target.value })}
+                    placeholder="https://x.com/..."
+                    className="w-full bg-[#F5F5F5] border border-[#E8E8E8] rounded-lg px-3 py-2 text-[#111] text-sm focus:outline-none focus:ring-1 focus:ring-[#FFC200]"
+                  />
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={handleSave}
+                    className="flex-1 py-2 bg-[#FFC200] text-black text-sm font-bold rounded-lg hover:bg-[#e6af00] transition-colors"
+                  >
+                    保存
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="px-4 py-2 text-[#888] text-sm rounded-lg hover:bg-[#F5F5F5] transition-colors"
+                  >
+                    キャンセル
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="text-[#777] text-xs tracking-widest uppercase mb-1">Runner</div>
+                <h1 className="text-[#111] text-2xl font-bold mb-2" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+                  {profile.displayName || (isOwner ? '名前未設定' : 'Unknown Runner')}
+                </h1>
+                {profile.bio && <p className="text-[#666] text-sm leading-relaxed mb-3">{profile.bio}</p>}
+                {(profile.stravaUrl || profile.instagramUrl || profile.xUrl) && (
+                  <div className="flex items-center gap-3">
+                    {profile.stravaUrl && (
+                      <a href={profile.stravaUrl} target="_blank" rel="noopener noreferrer" className="text-[#FC4C02] hover:opacity-70 transition-opacity" title="Strava">
+                        <StravaIcon />
+                      </a>
+                    )}
+                    {profile.instagramUrl && (
+                      <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-[#E1306C] hover:opacity-70 transition-opacity" title="Instagram">
+                        <InstagramIcon />
+                      </a>
+                    )}
+                    {profile.xUrl && (
+                      <a href={profile.xUrl} target="_blank" rel="noopener noreferrer" className="text-[#111] hover:opacity-60 transition-opacity" title="X">
+                        <XIcon />
+                      </a>
+                    )}
+                  </div>
+                )}
+                <div className="mt-3 pt-3 border-t border-[#F0F0F0]">
+                  <span className="text-[#FFC200] text-xs tracking-wider">
+                    {categoriesWithRecords.length} カテゴリ記録
+                  </span>
+                </div>
+              </>
             )}
           </div>
-        )}
-        <div className="mt-3 pt-3 border-t border-[#F0F0F0]">
-          <span className="text-[#FFC200] text-xs tracking-wider">
-            {categoriesWithRecords.length} カテゴリ記録
-          </span>
+
+          {isOwner && !editing && (
+            <button
+              onClick={() => { setForm(profile); setEditing(true); }}
+              title="プロフィールを編集"
+              className="ml-3 w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F5F5] transition-colors text-[#AAA] hover:text-[#555] shrink-0"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
+      {/* Share URL (owner only) */}
+      {isOwner && (
+        <div className="bg-white rounded-2xl border border-[#E8E8E8] px-4 py-3 mb-6 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="text-[#888] text-[10px] tracking-wider uppercase mb-0.5">プロフィールURL</div>
+            <div className="text-[#444] text-xs truncate font-mono">{profileUrl}</div>
+          </div>
+          <button
+            onClick={handleCopy}
+            className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+            style={copied ? { background: '#d4edda', color: '#155724' } : { background: '#F5F5F5', color: '#555' }}
+          >
+            {copied ? 'コピー済み' : 'コピー'}
+          </button>
+        </div>
+      )}
+
       {/* PB Records */}
       <h2 className="text-[#111] text-sm font-bold tracking-widest uppercase mb-3" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-        Personal Bests
+        {isOwner ? 'My PBs' : 'Personal Bests'}
       </h2>
 
       {categoriesWithRecords.length === 0 ? (
