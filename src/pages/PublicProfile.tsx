@@ -48,8 +48,12 @@ function MedalIcon({ size = 14 }: { size?: number }) {
   );
 }
 
-// ── Read-only clock card (RecordCard visual without edit buttons) ──
-function PBCard({ record }: { record: RaceRecord }) {
+// ── PB clock card ──────────────────────────────────────────
+function PBCard({ record, isOwner, onDelete }: {
+  record: RaceRecord;
+  isOwner: boolean;
+  onDelete: (id: string) => void;
+}) {
   return (
     <div style={{ filter: 'drop-shadow(0 0 8px rgba(255,194,0,0.5))' }}>
       <div
@@ -98,8 +102,27 @@ function PBCard({ record }: { record: RaceRecord }) {
             {record.category}
           </span>
         </div>
-        <p className="text-[#888] text-[10px]">{record.date}</p>
-        {record.memo && <p className="text-[#AAA] text-[10px] mt-0.5 line-clamp-2">{record.memo}</p>}
+        <div className="flex items-center justify-between">
+          <p className="text-[#888] text-[10px]">{record.date}</p>
+          {isOwner && (
+            <div className="flex items-center gap-0.5">
+              <Link href={`/edit/${record.id}`}>
+                <button title="編集" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[#F0F0F0] transition-colors text-[#AAA] hover:text-[#555]">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+              </Link>
+              <button title="削除" onClick={() => onDelete(record.id)}
+                className="w-6 h-6 flex items-center justify-center rounded transition-colors text-[#AAA] hover:bg-red-50 hover:text-red-400">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  <path d="M10 11v6"/><path d="M14 11v6"/>
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -296,7 +319,7 @@ export function PublicProfile() {
             {filteredPBCategories.map((cat) => {
               const record = pbRecords[cat];
               if (!record) return null;
-              return <PBCard key={cat} record={record} />;
+              return <PBCard key={cat} record={record} isOwner={isOwner} onDelete={setConfirmDeleteId} />;
             })}
           </div>
         </>
