@@ -20,8 +20,8 @@ export function LCDDisplay({
   const timeStr = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 
   const sizeClasses = {
-    sm: 'text-2xl',
-    md: 'text-4xl',
+    sm: 'text-xs sm:text-2xl',
+    md: 'text-lg sm:text-4xl',
     lg: 'text-6xl',
   };
 
@@ -32,6 +32,7 @@ export function LCDDisplay({
         fontFamily: "'DSEG7', 'Courier New', monospace",
         color: glow ? '#FFC200' : '#c49600',
         letterSpacing: '0.04em',
+        whiteSpace: 'nowrap',
       }}
     >
       {timeStr}
