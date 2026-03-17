@@ -37,27 +37,27 @@ function XIcon() {
 }
 
 function MedalIcon({ size = 14 }: { size?: number }) {
+  const cx = 50, cy = 47;
+  const leftAngles  = [115, 133, 151, 169, 187, 205, 223, 241, 259, 270];
+  const rightAngles = [ 65,  47,  29,  11,  -7, -25, -43, -61, -79, -90];
+  const outerLeaf = 'M 0 0 C -5 -3,-5 -17, 0 -20 C 5 -17, 5 -3, 0 0 Z';
+  const innerLeaf = 'M 0 0 C -3 -1.5,-3 -9.5, 0 -12 C 3 -9.5, 3 -1.5, 0 0 Z';
+  const renderLeaves = (angles: number[], r: number, d: string, offset = 0) =>
+    angles.map((θ) => {
+      const a = θ * Math.PI / 180;
+      return (
+        <path key={`${r}${θ}`} d={d}
+          transform={`translate(${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}) rotate(${θ + 90 + offset})`} />
+      );
+    });
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      {/* 左: 弧状に並ぶ葉 */}
-      <ellipse cx="5" cy="17" rx="3.5" ry="1.5" transform="rotate(-30 5 17)" fill="#8B6000"/>
-      <ellipse cx="5.5" cy="13" rx="3.5" ry="1.5" transform="rotate(-10 5.5 13)" fill="#8B6000"/>
-      <ellipse cx="7" cy="9.5" rx="3.5" ry="1.5" transform="rotate(15 7 9.5)" fill="#8B6000"/>
-      <ellipse cx="9.5" cy="6.5" rx="3.5" ry="1.5" transform="rotate(40 9.5 6.5)" fill="#8B6000"/>
-      <ellipse cx="13" cy="4.5" rx="3.5" ry="1.5" transform="rotate(65 13 4.5)" fill="#8B6000"/>
-      {/* 右: 鏡像 */}
-      <ellipse cx="27" cy="17" rx="3.5" ry="1.5" transform="rotate(30 27 17)" fill="#8B6000"/>
-      <ellipse cx="26.5" cy="13" rx="3.5" ry="1.5" transform="rotate(10 26.5 13)" fill="#8B6000"/>
-      <ellipse cx="25" cy="9.5" rx="3.5" ry="1.5" transform="rotate(-15 25 9.5)" fill="#8B6000"/>
-      <ellipse cx="22.5" cy="6.5" rx="3.5" ry="1.5" transform="rotate(-40 22.5 6.5)" fill="#8B6000"/>
-      <ellipse cx="19" cy="4.5" rx="3.5" ry="1.5" transform="rotate(-65 19 4.5)" fill="#8B6000"/>
-      {/* 茎の弧 */}
-      <path d="M13 26 Q8 22 5.5 16 Q4 10 8 5" stroke="#8B6000" strokeWidth="1.5" fill="none"/>
-      <path d="M19 26 Q24 22 26.5 16 Q28 10 24 5" stroke="#8B6000" strokeWidth="1.5" fill="none"/>
-      {/* 下の結び */}
-      <path d="M13 26 Q16 28.5 19 26" stroke="#8B6000" strokeWidth="2" fill="none" strokeLinecap="round"/>
-      {/* 中央の星 */}
-      <path d="M16 9l.8 2.4h2.5l-2 1.5.8 2.4-2.1-1.5-2.1 1.5.8-2.4-2-1.5h2.5z" fill="#FFD84D"/>
+    <svg width={size} height={size} viewBox="0 0 100 95" fill="#FFC200" style={{ overflow: 'visible' }}>
+      {renderLeaves(leftAngles.slice(0, -1), 19, innerLeaf, 20)}
+      {renderLeaves(rightAngles.slice(0, -1), 19, innerLeaf, -20)}
+      {renderLeaves(leftAngles, 26, outerLeaf)}
+      {renderLeaves(rightAngles, 26, outerLeaf)}
+      <path d="M 62 72 C 52 81,43 86,33 92" stroke="#FFC200" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+      <path d="M 38 72 C 48 81,57 86,67 92" stroke="#FFC200" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
     </svg>
   );
 }

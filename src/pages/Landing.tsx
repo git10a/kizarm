@@ -13,6 +13,32 @@ function GoogleIcon({ size = 18 }: { size?: number }) {
   );
 }
 
+function WreathIcon({ size = 14 }: { size?: number }) {
+  const cx = 50, cy = 47;
+  const leftAngles  = [115, 133, 151, 169, 187, 205, 223, 241, 259, 270];
+  const rightAngles = [ 65,  47,  29,  11,  -7, -25, -43, -61, -79, -90];
+  const outerLeaf = 'M 0 0 C -5 -3,-5 -17, 0 -20 C 5 -17, 5 -3, 0 0 Z';
+  const innerLeaf = 'M 0 0 C -3 -1.5,-3 -9.5, 0 -12 C 3 -9.5, 3 -1.5, 0 0 Z';
+  const renderLeaves = (angles: number[], r: number, d: string, offset = 0) =>
+    angles.map((θ) => {
+      const a = θ * Math.PI / 180;
+      return (
+        <path key={`${r}${θ}`} d={d}
+          transform={`translate(${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}) rotate(${θ + 90 + offset})`} />
+      );
+    });
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 95" fill="#FFC200" style={{ overflow: 'visible' }}>
+      {renderLeaves(leftAngles.slice(0, -1), 19, innerLeaf, 20)}
+      {renderLeaves(rightAngles.slice(0, -1), 19, innerLeaf, -20)}
+      {renderLeaves(leftAngles, 26, outerLeaf)}
+      {renderLeaves(rightAngles, 26, outerLeaf)}
+      <path d="M 62 72 C 52 81,43 86,33 92" stroke="#FFC200" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+      <path d="M 38 72 C 48 81,57 86,67 92" stroke="#FFC200" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 // ── Mock card for demo ───────────────────────────────────
 function DemoCard({ hours, minutes, seconds, name, cat, date, pb, size = 'md' }: {
   hours: number; minutes: number; seconds: number;
@@ -50,7 +76,7 @@ function DemoCard({ hours, minutes, seconds, name, cat, date, pb, size = 'md' }:
         </div>
         <div className="flex items-center justify-between">
           <p className="text-[#888] text-[10px]">{date}</p>
-          {pb && <span className="text-[10px] font-black text-[#FFC200]">🏅</span>}
+          {pb && <WreathIcon size={14} />}
         </div>
       </div>
     </div>
@@ -199,7 +225,7 @@ export function Landing() {
       <section className="border-t border-[#E8E8E8] py-16 px-6 bg-white">
         <div className="max-w-3xl mx-auto grid sm:grid-cols-4 gap-8 text-center">
           {[
-            { icon: '🏅', title: 'Personal Bests', desc: '種目ごとの自己ベストを自動で管理。更新のたびにPBバッジが輝く。' },
+            { icon: <WreathIcon size={34} />, title: 'Personal Bests', desc: '種目ごとの自己ベストを自動で管理。更新のたびにPBバッジが輝く。' },
             { icon: '📅', title: 'Race History', desc: '出走したすべてのレースを年表形式で振り返れる。メモも残せる。' },
             { icon: '📈', title: 'Growth Chart', desc: 'カテゴリごとのタイム推移をグラフで可視化。成長を一目で確認。' },
             { icon: '🔗', title: 'シェアできるページ', desc: '専用URLでSNSや友人にシェア。ランナーとしての軌跡を見せよう。' },
