@@ -335,7 +335,7 @@ export function PublicProfile() {
           <h2 className="text-[#111] text-xs font-bold tracking-widest uppercase mb-3 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             Personal Bests
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8 relative">
+          <div className="grid grid-cols-2 gap-4 mb-8 relative">
             {filteredPBCategories.map((cat) => {
               const record = pbRecords[cat];
               if (!record) return null;
