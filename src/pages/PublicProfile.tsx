@@ -3,6 +3,7 @@ import { useParams, Link, useLocation } from 'wouter';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { getPBRecords } from '../hooks/useRecords';
+import wreathImg from '../assets/wreath.png';
 import { RACE_CATEGORIES } from '../types';
 import type { RaceCategory, RaceRecord } from '../types';
 import { LCDDisplay } from '../components/LCDDisplay';
@@ -37,35 +38,7 @@ function XIcon() {
 }
 
 function MedalIcon({ size = 14 }: { size?: number }) {
-  const cx = 50, cy = 47;
-  // 下部に90°の開口部を作る: 左135°→270°, 右45°→-90°
-  const leftAngles  = [135, 152, 169, 186, 203, 220, 237, 254, 270];
-  const rightAngles = [ 45,  28,  11,  -6, -23, -40, -57, -74, -90];
-  // 外側の葉（外側を向く）・内側の葉（内側＝中心を向く）
-  const outerLeaf = 'M 0 0 C -7 -2,-7 -16, 0 -19 C 7 -16, 7 -2, 0 0 Z';
-  const innerLeaf = 'M 0 0 C -5 -1.5,-5 -11, 0 -13 C 5 -11, 5 -1.5, 0 0 Z';
-  const renderBranch = (angles: number[]) =>
-    angles.map((θ) => {
-      const a = θ * Math.PI / 180;
-      const ox = (cx + 30 * Math.cos(a)).toFixed(2);
-      const oy = (cy + 30 * Math.sin(a)).toFixed(2);
-      const ix = (cx + 21 * Math.cos(a)).toFixed(2);
-      const iy = (cy + 21 * Math.sin(a)).toFixed(2);
-      return (
-        <g key={θ}>
-          <path d={outerLeaf} transform={`translate(${ox},${oy}) rotate(${θ + 90})`} />
-          <path d={innerLeaf} transform={`translate(${ix},${iy}) rotate(${θ - 90})`} />
-        </g>
-      );
-    });
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 96" fill="#FFC200" style={{ overflow: 'visible' }}>
-      {renderBranch(leftAngles)}
-      {renderBranch(rightAngles)}
-      <path d="M 68 70 C 58 80,47 86,35 93" stroke="#FFC200" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-      <path d="M 32 70 C 42 80,53 86,65 93" stroke="#FFC200" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-    </svg>
-  );
+  return <img src={wreathImg} width={size} height={size} alt="PB" style={{ display: 'inline-block' }} />;
 }
 
 // ── PB clock card (hover → scan-reveal race info) ──────────
