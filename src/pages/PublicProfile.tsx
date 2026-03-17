@@ -104,11 +104,14 @@ function PBCard({ record, isOwner, onDelete }: {
                 ? 'clip-path 0.22s steps(7) 0.06s'
                 : 'clip-path 0.04s steps(1)',
             }}>
-            <p className="text-[#FFC200] text-[11px] font-bold text-center leading-tight w-full truncate"
-              style={{ textShadow: '0 0 8px rgba(255,194,0,0.5)' }}>
+            <p className="text-[#FFC200] text-[10px] font-bold text-center leading-tight w-full truncate"
+              style={{ fontFamily: "'Orbitron', sans-serif", textShadow: '0 0 8px rgba(255,194,0,0.6)', letterSpacing: '0.04em' }}>
               {record.raceName}
             </p>
-            <p className="text-[#666] text-[10px]">{record.date}</p>
+            <p className="text-[#555] text-[10px] tracking-widest"
+              style={{ fontFamily: "'Orbitron', sans-serif" }}>
+              {record.date}
+            </p>
           </div>
         </div>
 
