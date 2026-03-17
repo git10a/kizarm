@@ -17,6 +17,11 @@ body {
   min-height: 100svh;
 }
 
+/* Pointer cursor on all interactive elements */
+button, a, [role="button"], label[for], select {
+  cursor: pointer;
+}
+
 /* Remove number input spinners */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
