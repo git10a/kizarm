@@ -78,7 +78,7 @@ function PBCard({ record, isOwner, onDelete }: {
         {/* LCD panel */}
         <div
           className="rounded-lg overflow-hidden relative"
-          style={{ background: '#0A0A00', border: '3px solid #8B6000', padding: '10px 6px', minHeight: 52 }}
+          style={{ background: '#0A0A00', border: '3px solid #8B6000', padding: '18px 8px', minHeight: 80 }}
         >
           {/* Scanlines */}
           <div className="absolute inset-0 pointer-events-none"
