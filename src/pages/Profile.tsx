@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
+import { useAuth } from '../contexts/AuthContext';
 import { getPBRecords } from '../hooks/useRecords';
 import type { useRecords, useUserProfile, UserProfile } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
@@ -38,11 +39,22 @@ interface ProfileProps {
 }
 
 export function Profile({ recordsCtx, profileCtx }: ProfileProps) {
+  const { user } = useAuth();
   const { records } = recordsCtx;
   const { profile, setProfile } = profileCtx;
   const pbRecords = getPBRecords(records);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<UserProfile>(profile);
+  const [copied, setCopied] = useState(false);
+
+  const profileUrl = user ? `${window.location.origin}/u/${user.id}` : '';
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(profileUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
   const categoriesWithRecords = RACE_CATEGORIES.filter((cat) => pbRecords[cat]);
 
   const handleSave = async () => {
@@ -178,6 +190,23 @@ export function Profile({ recordsCtx, profileCtx }: ProfileProps) {
           )}
         </div>
       </div>
+
+      {/* Share URL */}
+      {profileUrl && (
+        <div className="bg-white rounded-2xl border border-[#E8E8E8] px-4 py-3 mb-6 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="text-[#888] text-[10px] tracking-wider uppercase mb-0.5">プロフィールURL</div>
+            <div className="text-[#444] text-xs truncate font-mono">{profileUrl}</div>
+          </div>
+          <button
+            onClick={handleCopy}
+            className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+            style={copied ? { background: '#d4edda', color: '#155724' } : { background: '#F5F5F5', color: '#555' }}
+          >
+            {copied ? 'コピー済み' : 'コピー'}
+          </button>
+        </div>
+      )}
 
       {/* PB Records */}
       <div className="mb-4 flex items-center justify-between">

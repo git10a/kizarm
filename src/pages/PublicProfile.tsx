@@ -46,11 +46,11 @@ export function PublicProfile() {
     (async () => {
       setLoading(true);
 
-      // Fetch profile by display_name
+      // Fetch profile by user ID
       const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('display_name', urlName)
+        .eq('id', urlName)
         .single();
 
       if (profileError || !profileData) {
