@@ -93,7 +93,7 @@ function PBCard({ record, isOwner, onDelete }: {
               opacity: hovered ? 0 : 1,
               transform: hovered ? 'scale(0.82)' : 'scale(1)',
             }}>
-            <LCDDisplay hours={record.hours} minutes={record.minutes} seconds={record.seconds} size="sm" glow />
+            <LCDDisplay hours={record.hours} minutes={record.minutes} seconds={record.seconds} size="md" glow />
           </div>
 
           {/* Race info (scan-wipe in on hover) */}
@@ -104,11 +104,11 @@ function PBCard({ record, isOwner, onDelete }: {
                 ? 'clip-path 0.22s steps(7) 0.06s'
                 : 'clip-path 0.04s steps(1)',
             }}>
-            <p className="text-[#FFC200] text-[10px] font-bold text-center leading-tight w-full truncate"
+            <p className="text-[#FFC200] text-xs font-bold text-center leading-tight w-full truncate"
               style={{ fontFamily: "'Orbitron', sans-serif", textShadow: '0 0 8px rgba(255,194,0,0.6)', letterSpacing: '0.04em' }}>
               {record.raceName}
             </p>
-            <p className="text-[10px]"
+            <p className="text-[12px]"
               style={{ fontFamily: "'DSEG7', 'Courier New', monospace", color: '#888', letterSpacing: '0.04em' }}>
               {record.date}
             </p>
