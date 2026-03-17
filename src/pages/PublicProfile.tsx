@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'wouter';
+import { useParams, Link } from 'wouter';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { getPBRecords } from '../hooks/useRecords';
@@ -34,6 +34,13 @@ function XIcon() {
   );
 }
 
+function formatTime(hours: number, minutes: number, seconds: number) {
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+}
+
 export function PublicProfile() {
   const params = useParams<{ name: string }>();
   const urlId = decodeURIComponent(params.name ?? '');
@@ -53,7 +60,6 @@ export function PublicProfile() {
     (async () => {
       setLoading(true);
 
-      // Fetch profile by user ID
       const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
         .select('*')
@@ -76,11 +82,11 @@ export function PublicProfile() {
       setProfile(p);
       setForm(p);
 
-      // Fetch records for this user
       const { data: recordsData } = await supabase
         .from('race_records')
         .select('*')
-        .eq('user_id', profileData.id);
+        .eq('user_id', profileData.id)
+        .order('date', { ascending: false });
 
       if (recordsData) {
         const mapped: RaceRecord[] = recordsData.map((row) => ({
@@ -140,8 +146,30 @@ export function PublicProfile() {
   const pbRecords = getPBRecords(records);
   const categoriesWithRecords = RACE_CATEGORIES.filter((cat) => pbRecords[cat]);
 
+  // sorted records (already sorted by date desc from DB)
+  const sortedRecords = [...records].sort((a, b) => b.date.localeCompare(a.date));
+
   return (
     <div className="max-w-xl mx-auto">
+
+      {/* Owner banner */}
+      {isOwner && (
+        <div className="mb-4 flex items-center justify-between bg-[#FFFBEA] border border-[#FFE066] rounded-xl px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B38600" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <span className="text-[#8B6000] text-xs font-medium">他のユーザーにはこう見えています</span>
+          </div>
+          <Link href="/">
+            <span className="text-[#8B6000] text-xs underline underline-offset-2 cursor-pointer hover:opacity-70 transition-opacity">
+              ダッシュボードへ
+            </span>
+          </Link>
+        </div>
+      )}
+
       {/* Profile header */}
       <div className="bg-white rounded-2xl border border-[#E8E8E8] p-6 mb-6">
         <div className="flex items-start justify-between mb-4">
@@ -259,13 +287,53 @@ export function PublicProfile() {
         </div>
       </div>
 
-
       {/* PB Records */}
-      <h2 className="text-[#111] text-sm font-bold tracking-widest uppercase mb-3" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-        {isOwner ? 'My PBs' : 'Personal Bests'}
-      </h2>
+      {categoriesWithRecords.length > 0 && (
+        <>
+          <h2 className="text-[#111] text-xs font-bold tracking-widest uppercase mb-3 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            Personal Bests
+          </h2>
+          <div className="space-y-2 mb-8">
+            {RACE_CATEGORIES.map((cat) => {
+              const record = pbRecords[cat as RaceCategory];
+              if (!record) return null;
+              return (
+                <div key={cat} className="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden flex items-center gap-4 px-4 py-3">
+                  <div className="rounded-lg overflow-hidden shrink-0"
+                    style={{
+                      background: 'linear-gradient(160deg, #FFD000 0%, #FFC200 50%, #E6A800 100%)',
+                      padding: '4px 6px 2px',
+                      boxShadow: '0 3px 0 #B38600',
+                    }}
+                  >
+                    <div className="rounded px-2 py-1" style={{ background: '#0A0A00', border: '2px solid #8B6000' }}>
+                      <LCDDisplay hours={record.hours} minutes={record.minutes} seconds={record.seconds} size="sm" />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#FFF3CC', color: '#8B6000', border: '1px solid #FFC200' }}>
+                        {cat}
+                      </span>
+                      <span className="text-[9px] font-black px-1 py-0.5 rounded" style={{ background: '#111', color: '#FFC200', border: '1px solid #FFC200' }}>
+                        PB
+                      </span>
+                    </div>
+                    <p className="text-[#111] text-xs font-semibold truncate">{record.raceName}</p>
+                    <p className="text-[#888] text-[10px]">{record.date}</p>
+                    {record.memo && (
+                      <p className="text-[#AAA] text-[10px] mt-0.5 line-clamp-2">{record.memo}</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
-      {categoriesWithRecords.length === 0 ? (
+      {/* Race History */}
+      {sortedRecords.length === 0 ? (
         <div className="bg-white rounded-2xl border border-[#E8E8E8] py-16 text-center">
           <div className="text-[#D0D0D0] text-5xl mb-3" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             00:00:00
@@ -273,42 +341,56 @@ export function PublicProfile() {
           <p className="text-[#888] text-sm">まだ記録がありません</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {RACE_CATEGORIES.map((cat) => {
-            const record = pbRecords[cat as RaceCategory];
-            if (!record) return null;
-            return (
-              <div key={cat} className="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden flex items-center gap-4 px-4 py-3">
-                <div className="rounded-lg overflow-hidden shrink-0"
-                  style={{
-                    background: 'linear-gradient(160deg, #FFD000 0%, #FFC200 50%, #E6A800 100%)',
-                    padding: '4px 6px 2px',
-                    boxShadow: '0 3px 0 #B38600',
-                  }}
+        <>
+          <h2 className="text-[#111] text-xs font-bold tracking-widest uppercase mb-3 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            Race History
+          </h2>
+          <div className="bg-white rounded-2xl border border-[#E8E8E8] overflow-hidden">
+            {sortedRecords.map((record, i) => {
+              const isPB = pbRecords[record.category]?.id === record.id;
+              const isLast = i === sortedRecords.length - 1;
+              return (
+                <div
+                  key={record.id}
+                  className={`flex items-start gap-3 px-4 py-3 ${!isLast ? 'border-b border-[#F0F0F0]' : ''}`}
                 >
-                  <div className="rounded px-2 py-1" style={{ background: '#0A0A00', border: '2px solid #8B6000' }}>
-                    <LCDDisplay hours={record.hours} minutes={record.minutes} seconds={record.seconds} size="sm" />
+                  {/* Date column */}
+                  <div className="shrink-0 w-20 pt-0.5">
+                    <span className="text-[#999] text-[10px]">{record.date}</span>
+                  </div>
+
+                  {/* Main info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#F5F5F5', color: '#666', border: '1px solid #E8E8E8' }}>
+                        {record.category}
+                      </span>
+                      {isPB && (
+                        <span className="text-[9px] font-black px-1 py-0.5 rounded" style={{ background: '#111', color: '#FFC200', border: '1px solid #FFC200' }}>
+                          PB
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[#111] text-xs font-medium truncate">{record.raceName}</p>
+                    {record.memo && (
+                      <p className="text-[#999] text-[10px] mt-0.5 leading-relaxed">{record.memo}</p>
+                    )}
+                  </div>
+
+                  {/* Time */}
+                  <div className="shrink-0 text-right">
+                    <span
+                      className={`text-sm font-bold tabular-nums ${isPB ? 'text-[#FFC200]' : 'text-[#333]'}`}
+                      style={{ fontFamily: "'Orbitron', sans-serif" }}
+                    >
+                      {formatTime(record.hours, record.minutes, record.seconds)}
+                    </span>
                   </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#FFF3CC', color: '#8B6000', border: '1px solid #FFC200' }}>
-                      {cat}
-                    </span>
-                    <span className="text-[9px] font-black px-1 py-0.5 rounded" style={{ background: '#111', color: '#FFC200', border: '1px solid #FFC200' }}>
-                      PB
-                    </span>
-                  </div>
-                  <p className="text-[#111] text-xs font-semibold truncate">{record.raceName}</p>
-                  <p className="text-[#888] text-[10px]">{record.date}</p>
-                  {record.memo && (
-                    <p className="text-[#AAA] text-[10px] mt-0.5 line-clamp-1">{record.memo}</p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
