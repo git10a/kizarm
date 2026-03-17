@@ -1,7 +1,6 @@
-import { Switch, Route } from 'wouter';
+import { Switch, Route, Redirect } from 'wouter';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
-import { Home } from './pages/Home';
 import { AddRecord } from './pages/AddRecord';
 import { EditRecord } from './pages/EditRecord';
 import { PublicProfile } from './pages/PublicProfile';
@@ -15,40 +14,42 @@ function AppInner() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#F8F8F6] flex items-center justify-center">
-        <span
-          className="text-[#FFC200] text-2xl font-black tracking-widest"
-          style={{ fontFamily: "'Orbitron', sans-serif" }}
-        >
+        <span className="text-[#FFC200] text-2xl font-black tracking-widest" style={{ fontFamily: "'Orbitron', sans-serif" }}>
           KIZARM
         </span>
       </div>
     );
   }
 
+  if (!user) {
+    return (
+      <Switch>
+        <Route path="/u/:name">
+          <Layout><PublicProfile /></Layout>
+        </Route>
+        <Route><Login /></Route>
+      </Switch>
+    );
+  }
+
   return (
     <Switch>
       <Route path="/u/:name">
-        <Layout>
-          <PublicProfile />
-        </Layout>
+        <Layout><PublicProfile /></Layout>
+      </Route>
+      <Route path="/add">
+        <Layout><AddRecord recordsCtx={recordsCtx} /></Layout>
+      </Route>
+      <Route path="/edit/:id">
+        <Layout><EditRecord recordsCtx={recordsCtx} /></Layout>
+      </Route>
+      <Route path="/">
+        <Redirect to={`/u/${user.id}`} />
       </Route>
       <Route>
-        {!user ? (
-          <Login />
-        ) : (
-          <Layout>
-            <Switch>
-              <Route path="/" component={() => <Home recordsCtx={recordsCtx} />} />
-              <Route path="/add" component={() => <AddRecord recordsCtx={recordsCtx} />} />
-              <Route path="/edit/:id" component={() => <EditRecord recordsCtx={recordsCtx} />} />
-              <Route>
-                <div className="text-center py-24">
-                  <p className="text-[#777]">ページが見つかりません</p>
-                </div>
-              </Route>
-            </Switch>
-          </Layout>
-        )}
+        <Layout>
+          <div className="text-center py-24"><p className="text-[#777]">ページが見つかりません</p></div>
+        </Layout>
       </Route>
     </Switch>
   );

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
+import { useAuth } from '../contexts/AuthContext';
 import type { useRecords } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
 import type { RaceCategory } from '../types';
@@ -12,7 +13,9 @@ interface AddRecordProps {
 
 export function AddRecord({ recordsCtx }: AddRecordProps) {
   const [, navigate] = useLocation();
+  const { user } = useAuth();
   const { addRecord } = recordsCtx;
+  const backUrl = user ? `/u/${user.id}` : '/';
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -36,7 +39,7 @@ export function AddRecord({ recordsCtx }: AddRecordProps) {
       date,
       memo: memo.trim() || undefined,
     });
-    navigate('/');
+    navigate(backUrl);
   };
 
   return (

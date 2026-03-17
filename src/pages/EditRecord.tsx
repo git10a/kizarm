@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useParams } from 'wouter';
+import { useAuth } from '../contexts/AuthContext';
 import type { useRecords } from '../hooks/useRecords';
 import { RACE_CATEGORIES } from '../types';
 import type { RaceCategory } from '../types';
@@ -12,8 +13,10 @@ interface EditRecordProps {
 
 export function EditRecord({ recordsCtx }: EditRecordProps) {
   const [, navigate] = useLocation();
+  const { user } = useAuth();
   const params = useParams<{ id: string }>();
   const { getRecord, updateRecord } = recordsCtx;
+  const backUrl = user ? `/u/${user.id}` : '/';
 
   const record = getRecord(params.id);
 
@@ -46,7 +49,7 @@ export function EditRecord({ recordsCtx }: EditRecordProps) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <p className="text-[#777] text-sm mb-4">記録が見つかりません</p>
-        <button onClick={() => navigate('/')}
+        <button onClick={() => navigate(backUrl)}
           className="px-4 py-2 bg-[#F0F0F0] text-[#111] text-sm rounded border border-[#E8E8E8] hover:bg-[#E8E8E8]">
           ホームに戻る
         </button>
@@ -64,7 +67,7 @@ export function EditRecord({ recordsCtx }: EditRecordProps) {
       date,
       memo: memo.trim() || undefined,
     });
-    navigate('/');
+    navigate(backUrl);
   };
 
   return (
@@ -145,7 +148,7 @@ export function EditRecord({ recordsCtx }: EditRecordProps) {
 
         {/* Submit */}
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={() => navigate('/')}
+          <button type="button" onClick={() => navigate(backUrl)}
             className="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-sm font-semibold rounded-lg border border-[#E8E8E8] hover:bg-[#E8E8E8] hover:text-[#111] transition-colors">
             キャンセル
           </button>

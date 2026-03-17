@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'wouter';
+import { useParams, Link, useLocation } from 'wouter';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { getPBRecords } from '../hooks/useRecords';
@@ -117,6 +117,7 @@ export function PublicProfile() {
   const { user } = useAuth();
   const isOwner = !!user && user.id === urlId;
 
+  const [, navigate] = useLocation();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [records, setRecords] = useState<RaceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,6 +125,7 @@ export function PublicProfile() {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<UserProfile | null>(null);
   const [activeCategory, setActiveCategory] = useState<RaceCategory | 'すべて'>('すべて');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -164,6 +166,12 @@ export function PublicProfile() {
     })();
   }, [urlId]);
 
+  const handleDeleteRecord = async (id: string) => {
+    await supabase.from('race_records').delete().eq('id', id);
+    setRecords((prev) => prev.filter((r) => r.id !== id));
+    setConfirmDeleteId(null);
+  };
+
   const handleSave = async () => {
     if (!form) return;
     await supabase.from('user_profiles').upsert({
@@ -196,18 +204,6 @@ export function PublicProfile() {
   return (
     <div className="max-w-xl mx-auto">
 
-      {/* Owner banner */}
-      {isOwner && (
-        <div className="mb-4 flex items-center justify-between bg-[#FFFBEA] border border-[#FFE066] rounded-xl px-4 py-2.5">
-          <div className="flex items-center gap-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B38600" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
-            </svg>
-            <span className="text-[#8B6000] text-xs font-medium">他のユーザーにはこう見えています</span>
-          </div>
-          <Link href="/"><span className="text-[#8B6000] text-xs underline underline-offset-2 cursor-pointer hover:opacity-70 transition-opacity">ダッシュボードへ</span></Link>
-        </div>
-      )}
 
       {/* Profile card */}
       <div className="bg-white rounded-2xl border border-[#E8E8E8] p-6 mb-6">
@@ -256,13 +252,20 @@ export function PublicProfile() {
             )}
           </div>
           {isOwner && !editing && (
-            <button onClick={() => { setForm(profile); setEditing(true); }} title="プロフィールを編集"
-              className="ml-3 w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F5F5] transition-colors text-[#AAA] hover:text-[#555] shrink-0">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
-            </button>
+            <div className="ml-3 flex items-center gap-1 shrink-0">
+              <button onClick={() => { setForm(profile); setEditing(true); }} title="プロフィールを編集"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F5F5] transition-colors text-[#AAA] hover:text-[#555]">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+              <button onClick={() => navigate('/add')}
+                className="flex items-center gap-1 px-3 py-1.5 bg-[#FFC200] text-black text-xs font-bold rounded-lg hover:bg-[#e6af00] transition-colors active:scale-95">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                記録追加
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -349,11 +352,29 @@ export function PublicProfile() {
                                 <p className="text-[#111] text-sm font-semibold truncate">{record.raceName}</p>
                                 {record.memo && <p className="text-[#999] text-xs mt-1 leading-relaxed">{record.memo}</p>}
                               </div>
-                              <div className="shrink-0 text-right">
+                              <div className="shrink-0 text-right flex flex-col items-end gap-2">
                                 <span className={`text-base font-bold tabular-nums ${isPB ? 'text-[#FFC200]' : 'text-[#333]'}`}
                                   style={{ fontFamily: "'Orbitron', sans-serif" }}>
                                   {formatTime(record.hours, record.minutes, record.seconds)}
                                 </span>
+                                {isOwner && (
+                                  <div className="flex items-center gap-1">
+                                    <Link href={`/edit/${record.id}`}>
+                                      <button title="編集" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[#F0F0F0] transition-colors text-[#AAA] hover:text-[#555]">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                      </button>
+                                    </Link>
+                                    <button title="削除" onClick={() => setConfirmDeleteId(record.id)}
+                                      className="w-6 h-6 flex items-center justify-center rounded transition-colors text-[#AAA] hover:bg-red-50 hover:text-red-400">
+                                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                        <path d="M10 11v6"/><path d="M14 11v6"/>
+                                      </svg>
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -374,6 +395,30 @@ export function PublicProfile() {
           <GrowthChart records={activeCategory === 'すべて' ? records : records.filter(r => r.category === activeCategory)} />
         </div>
       )}
+
+      {/* Delete confirm modal */}
+      {confirmDeleteId && (() => {
+        const target = records.find(r => r.id === confirmDeleteId);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}
+            onClick={() => setConfirmDeleteId(null)}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+              <h3 className="text-[#111] font-semibold text-base mb-1">記録を削除しますか？</h3>
+              <p className="text-[#777] text-sm mb-6">「{target?.raceName}」の記録を削除します。この操作は取り消せません。</p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmDeleteId(null)}
+                  className="flex-1 py-2.5 bg-[#F0F0F0] text-[#555] text-sm font-semibold rounded-lg hover:bg-[#E8E8E8] transition-colors">
+                  キャンセル
+                </button>
+                <button onClick={() => handleDeleteRecord(confirmDeleteId)}
+                  className="flex-1 py-2.5 bg-red-500 text-white text-sm font-bold rounded-lg hover:bg-red-600 transition-colors">
+                  削除する
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* CTA for non-logged-in visitors */}
       {!user && (
