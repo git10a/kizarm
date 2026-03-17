@@ -38,12 +38,26 @@ function XIcon() {
 
 function MedalIcon({ size = 14 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <path d="M8 2L5 8l5 3L8 2z" fill="#FFC200" opacity="0.85" />
-      <path d="M16 2L19 8l-5 3L16 2z" fill="#FFC200" opacity="0.85" />
-      <circle cx="12" cy="15" r="7" fill="#FFC200" />
-      <circle cx="12" cy="15" r="5.5" fill="#FFD84D" />
-      <path d="M12 11l.9 2.6H16l-2.5 1.8.9 2.6L12 16.4l-2.4 1.6.9-2.6L8 13.6h3.1z" fill="#B38600" />
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      {/* 左: 弧状に並ぶ葉 */}
+      <ellipse cx="5" cy="17" rx="3.5" ry="1.5" transform="rotate(-30 5 17)" fill="#8B6000"/>
+      <ellipse cx="5.5" cy="13" rx="3.5" ry="1.5" transform="rotate(-10 5.5 13)" fill="#8B6000"/>
+      <ellipse cx="7" cy="9.5" rx="3.5" ry="1.5" transform="rotate(15 7 9.5)" fill="#8B6000"/>
+      <ellipse cx="9.5" cy="6.5" rx="3.5" ry="1.5" transform="rotate(40 9.5 6.5)" fill="#8B6000"/>
+      <ellipse cx="13" cy="4.5" rx="3.5" ry="1.5" transform="rotate(65 13 4.5)" fill="#8B6000"/>
+      {/* 右: 鏡像 */}
+      <ellipse cx="27" cy="17" rx="3.5" ry="1.5" transform="rotate(30 27 17)" fill="#8B6000"/>
+      <ellipse cx="26.5" cy="13" rx="3.5" ry="1.5" transform="rotate(10 26.5 13)" fill="#8B6000"/>
+      <ellipse cx="25" cy="9.5" rx="3.5" ry="1.5" transform="rotate(-15 25 9.5)" fill="#8B6000"/>
+      <ellipse cx="22.5" cy="6.5" rx="3.5" ry="1.5" transform="rotate(-40 22.5 6.5)" fill="#8B6000"/>
+      <ellipse cx="19" cy="4.5" rx="3.5" ry="1.5" transform="rotate(-65 19 4.5)" fill="#8B6000"/>
+      {/* 茎の弧 */}
+      <path d="M13 26 Q8 22 5.5 16 Q4 10 8 5" stroke="#8B6000" strokeWidth="1.5" fill="none"/>
+      <path d="M19 26 Q24 22 26.5 16 Q28 10 24 5" stroke="#8B6000" strokeWidth="1.5" fill="none"/>
+      {/* 下の結び */}
+      <path d="M13 26 Q16 28.5 19 26" stroke="#8B6000" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      {/* 中央の星 */}
+      <path d="M16 9l.8 2.4h2.5l-2 1.5.8 2.4-2.1-1.5-2.1 1.5.8-2.4-2-1.5h2.5z" fill="#FFD84D"/>
     </svg>
   );
 }
