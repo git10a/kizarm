@@ -4,7 +4,7 @@ import { Layout } from './components/Layout';
 import { AddRecord } from './pages/AddRecord';
 import { EditRecord } from './pages/EditRecord';
 import { PublicProfile } from './pages/PublicProfile';
-import { Login } from './pages/Login';
+import { Landing } from './pages/Landing';
 import { useRecords } from './hooks/useRecords';
 
 function AppInner() {
@@ -27,7 +27,7 @@ function AppInner() {
         <Route path="/u/:name">
           <Layout><PublicProfile /></Layout>
         </Route>
-        <Route><Login /></Route>
+        <Route><Landing /></Route>
       </Switch>
     );
   }
