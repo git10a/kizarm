@@ -1,50 +1,39 @@
+import { lazy, Suspense } from 'react';
 import { Switch, Route, Redirect } from 'wouter';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
-import { AddRecord } from './pages/AddRecord';
-import { EditRecord } from './pages/EditRecord';
-import { PublicProfile } from './pages/PublicProfile';
-import { Landing } from './pages/Landing';
 import { useRecords } from './hooks/useRecords';
 
-function AppInner() {
-  const { user, loading: authLoading } = useAuth();
-  const recordsCtx = useRecords(user?.id);
+const AddRecord = lazy(() => import('./pages/AddRecord').then(m => ({ default: m.AddRecord })));
+const EditRecord = lazy(() => import('./pages/EditRecord').then(m => ({ default: m.EditRecord })));
+const PublicProfile = lazy(() => import('./pages/PublicProfile').then(m => ({ default: m.PublicProfile })));
+const Landing = lazy(() => import('./pages/Landing').then(m => ({ default: m.Landing })));
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F6] flex items-center justify-center">
-        <span className="text-[#FFC200] text-2xl font-black tracking-widest" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-          KIZARM
-        </span>
-      </div>
-    );
-  }
+const LoadingFallback = (
+  <div className="min-h-screen bg-[#F8F8F6] flex items-center justify-center">
+    <span className="text-[#FFC200] text-2xl font-black tracking-widest" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+      KIZARM
+    </span>
+  </div>
+);
 
-  if (!user) {
-    return (
-      <Switch>
-        <Route path="/u/:name">
-          <Layout><PublicProfile /></Layout>
-        </Route>
-        <Route><Landing /></Route>
-      </Switch>
-    );
-  }
+function AuthenticatedRoutes() {
+  const { user } = useAuth();
+  const recordsCtx = useRecords(user!.id);
 
   return (
     <Switch>
       <Route path="/u/:name">
-        <Layout><PublicProfile /></Layout>
+        <Layout><Suspense fallback={null}><PublicProfile /></Suspense></Layout>
       </Route>
       <Route path="/add">
-        <Layout><AddRecord recordsCtx={recordsCtx} /></Layout>
+        <Layout><Suspense fallback={null}><AddRecord recordsCtx={recordsCtx} /></Suspense></Layout>
       </Route>
       <Route path="/edit/:id">
-        <Layout><EditRecord recordsCtx={recordsCtx} /></Layout>
+        <Layout><Suspense fallback={null}><EditRecord recordsCtx={recordsCtx} /></Suspense></Layout>
       </Route>
       <Route path="/">
-        <Redirect to={`/u/${user.id}`} />
+        <Redirect to={`/u/${user!.id}`} />
       </Route>
       <Route>
         <Layout>
@@ -53,6 +42,27 @@ function AppInner() {
       </Route>
     </Switch>
   );
+}
+
+function AppInner() {
+  const { user, loading: authLoading } = useAuth();
+
+  if (authLoading) return LoadingFallback;
+
+  if (!user) {
+    return (
+      <Suspense fallback={LoadingFallback}>
+        <Switch>
+          <Route path="/u/:name">
+            <Layout><PublicProfile /></Layout>
+          </Route>
+          <Route><Landing /></Route>
+        </Switch>
+      </Suspense>
+    );
+  }
+
+  return <AuthenticatedRoutes />;
 }
 
 function App() {
