@@ -72,7 +72,7 @@ export function GrowthChart({ records }: GrowthChartProps) {
     );
   }
 
-  const current = chartableCategories.includes(activeCategory)
+  const current = (chartableCategories as string[]).includes(activeCategory)
     ? activeCategory
     : chartableCategories[0];
 
