@@ -449,7 +449,7 @@ export function PublicProfile() {
       )}
 
       {/* Share CTA */}
-      {records.length > 0 && (
+      {isOwner && records.length > 0 && (
         <div className="mb-10 rounded-2xl border border-[#E8E8E8] bg-white px-6 py-7 text-center">
           <div className="text-2xl mb-3">🏃</div>
           <p className="text-[#111] text-sm font-bold mb-1 leading-snug">
