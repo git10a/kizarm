@@ -167,6 +167,20 @@ export function PublicProfile() {
   const [form, setForm] = useState<UserProfile | null>(null);
   const [activeCategory, setActiveCategory] = useState<RaceCategory | 'すべて'>('すべて');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyUrl = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleNativeShare = () => {
+    navigator.share({
+      url: window.location.href,
+      title: `${profile?.displayName ?? 'Runner'} のレース記録 | KIZARM`,
+    }).catch(() => {});
+  };
 
   useEffect(() => {
     (async () => {
@@ -432,6 +446,56 @@ export function PublicProfile() {
       {records.length >= 2 && (
         <div className="mb-8">
           <GrowthChart records={activeCategory === 'すべて' ? records : records.filter(r => r.category === activeCategory)} />
+        </div>
+      )}
+
+      {/* Share CTA */}
+      {records.length > 0 && (
+        <div className="mb-10 rounded-2xl border border-[#E8E8E8] bg-white px-6 py-7 text-center">
+          <div className="text-2xl mb-3">🏃</div>
+          <p className="text-[#111] text-sm font-bold mb-1 leading-snug">
+            あなたが刻んできた記録を<br />ランナー友達にシェアしませんか？
+          </p>
+          <p className="text-[#BBB] text-xs mb-5">プロフィールURLをコピーして共有できます</p>
+          <div className="flex items-center gap-2 bg-[#F5F5F5] rounded-xl px-3 py-2.5 mb-4 text-left">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#BBB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            <span className="flex-1 text-[11px] text-[#999] truncate">{window.location.href}</span>
+          </div>
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={handleCopyUrl}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#FFC200] text-black text-sm font-bold rounded-xl hover:bg-[#e6af00] transition-colors active:scale-95"
+            >
+              {copied ? (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  コピーしました！
+                </>
+              ) : (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  URLをコピー
+                </>
+              )}
+            </button>
+            {'share' in navigator && (
+              <button
+                onClick={handleNativeShare}
+                className="flex items-center gap-2 px-4 py-2.5 bg-[#111] text-white text-sm font-bold rounded-xl hover:bg-[#333] transition-colors active:scale-95"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+                シェア
+              </button>
+            )}
+          </div>
         </div>
       )}
 
