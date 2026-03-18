@@ -51,8 +51,10 @@ function PBCard({ record, isOwner, onDelete }: {
 
   return (
     <div
+      onClick={() => setHovered(h => !h)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className="cursor-pointer"
       style={{ filter: 'drop-shadow(0 0 8px rgba(255,194,0,0.5))' }}
     >
       <div
@@ -237,11 +239,10 @@ export function PublicProfile() {
     : sortedRecords.filter((r) => r.category === activeCategory);
 
   return (
-    <div className="max-w-xl mx-auto">
-
+    <div className="max-w-2xl mx-auto">
 
       {/* Profile card */}
-      <div className="bg-white rounded-2xl border border-[#E8E8E8] p-6 mb-6">
+      <div className="bg-white rounded-2xl border border-[#E8E8E8] p-6 sm:p-8 mb-8">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             {isOwner && editing ? (
@@ -307,7 +308,7 @@ export function PublicProfile() {
 
       {/* Category filter */}
       {records.length > 0 && (
-        <div className="flex gap-2 flex-wrap mb-6">
+        <div className="flex gap-2 flex-wrap mb-8">
           {(['すべて', ...RACE_CATEGORIES] as const).map((cat) => (
             <button key={cat} onClick={() => setActiveCategory(cat as RaceCategory | 'すべて')}
               className={`px-3 py-1 text-xs rounded-full border transition-colors ${
@@ -324,10 +325,10 @@ export function PublicProfile() {
       {/* Personal Bests */}
       {filteredPBCategories.length > 0 && (
         <>
-          <h2 className="text-[#111] text-xs font-bold tracking-widest uppercase mb-3 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+          <h2 className="text-[#111] text-xs font-bold tracking-widest uppercase mb-4 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             Personal Bests
           </h2>
-          <div className="grid grid-cols-2 gap-4 mb-8 relative">
+          <div className="grid grid-cols-2 gap-5 mb-12 relative">
             {filteredPBCategories.map((cat) => {
               const record = pbRecords[cat];
               if (!record) return null;
@@ -345,7 +346,7 @@ export function PublicProfile() {
         </div>
       ) : (
         <>
-          <h2 className="text-[#111] text-xs font-bold tracking-widest uppercase mb-4 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+          <h2 className="text-[#111] text-xs font-bold tracking-widest uppercase mb-5 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             Race History
           </h2>
           {(() => {
@@ -357,7 +358,7 @@ export function PublicProfile() {
             }
             const years = Object.keys(byYear).sort((a, b) => Number(b) - Number(a));
             return years.map((year) => (
-              <div key={year} className="mb-8">
+              <div key={year} className="mb-10">
                 <div className="text-[#111] text-2xl font-black mb-4 px-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>{year}</div>
                 <div className="relative">
                   {byYear[year].map((record, i) => {
@@ -375,7 +376,7 @@ export function PublicProfile() {
                         {/* Card */}
                         <div className={`flex-1 min-w-0 ${isLast ? 'pb-0' : 'pb-4'}`}>
                           <div className="text-[#AAA] text-[10px] mb-1">{monthDay.replace('-', '月')}日</div>
-                          <div className="bg-white rounded-xl border border-[#E8E8E8] px-4 py-3">
+                          <div className="bg-white rounded-xl border border-[#E8E8E8] px-4 py-4">
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5 mb-1 flex-wrap">
