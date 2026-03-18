@@ -10,6 +10,11 @@ import { LCDDisplay } from '../components/LCDDisplay';
 import { GrowthChart } from '../components/GrowthChart';
 import type { UserProfile } from '../hooks/useRecords';
 
+function isSafeUrl(url: string): boolean {
+  try { return ['http:', 'https:'].includes(new URL(url).protocol); }
+  catch { return false; }
+}
+
 // ── Icons ────────────────────────────────────────────────
 function StravaIcon() {
   return (
@@ -286,9 +291,9 @@ export function PublicProfile() {
                 {profile.bio && <p className="text-[#666] text-sm leading-relaxed mb-3">{profile.bio}</p>}
                 {(profile.stravaUrl || profile.instagramUrl || profile.xUrl) && (
                   <div className="flex items-center gap-3">
-                    {profile.stravaUrl && <a href={profile.stravaUrl} target="_blank" rel="noopener noreferrer" className="text-[#FC4C02] hover:opacity-70 transition-opacity" title="Strava"><StravaIcon /></a>}
-                    {profile.instagramUrl && <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-[#E1306C] hover:opacity-70 transition-opacity" title="Instagram"><InstagramIcon /></a>}
-                    {profile.xUrl && <a href={profile.xUrl} target="_blank" rel="noopener noreferrer" className="text-[#111] hover:opacity-60 transition-opacity" title="X"><XIcon /></a>}
+                    {profile.stravaUrl && isSafeUrl(profile.stravaUrl) && <a href={profile.stravaUrl} target="_blank" rel="noopener noreferrer" className="text-[#FC4C02] hover:opacity-70 transition-opacity" title="Strava"><StravaIcon /></a>}
+                    {profile.instagramUrl && isSafeUrl(profile.instagramUrl) && <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-[#E1306C] hover:opacity-70 transition-opacity" title="Instagram"><InstagramIcon /></a>}
+                    {profile.xUrl && isSafeUrl(profile.xUrl) && <a href={profile.xUrl} target="_blank" rel="noopener noreferrer" className="text-[#111] hover:opacity-60 transition-opacity" title="X"><XIcon /></a>}
                   </div>
                 )}
               </>
