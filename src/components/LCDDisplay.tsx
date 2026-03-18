@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 interface LCDDisplayProps {
   hours: number;
   minutes: number;
@@ -16,7 +18,8 @@ export function LCDDisplay({
   seconds,
   size = 'md',
   glow = false,
-}: LCDDisplayProps) {
+  style,
+}: LCDDisplayProps & { style?: CSSProperties }) {
   const timeStr = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 
   const sizeClasses = {
@@ -33,6 +36,7 @@ export function LCDDisplay({
         color: glow ? '#FFC200' : '#c49600',
         letterSpacing: '0.04em',
         whiteSpace: 'nowrap',
+        ...style,
       }}
     >
       {timeStr}

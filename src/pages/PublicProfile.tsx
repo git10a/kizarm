@@ -65,11 +65,6 @@ function PBCard({ record, isOwner, onDelete }: {
           boxShadow: '0 4px 0 #B38600, 0 6px 16px rgba(255,194,0,0.4)',
         }}
       >
-        {/* PB medal */}
-        <div className="absolute top-2 left-2 z-10">
-          <MedalIcon size={18} />
-        </div>
-
         {/* LCD panel */}
         <div
           className="rounded-lg overflow-hidden relative"
@@ -80,7 +75,7 @@ function PBCard({ record, isOwner, onDelete }: {
             style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.35) 2px, rgba(0,0,0,0.35) 3px)', zIndex: 3 }} />
 
           {/* Timer (fades out on hover) */}
-          <div className="relative z-[2] flex justify-center"
+          <div className="relative z-[2] flex justify-center items-center w-full"
             style={{
               transition: hovered
                 ? 'opacity 0.12s ease-out, transform 0.15s ease-out'
@@ -88,7 +83,11 @@ function PBCard({ record, isOwner, onDelete }: {
               opacity: hovered ? 0 : 1,
               transform: hovered ? 'scale(0.82)' : 'scale(1)',
             }}>
-            <LCDDisplay hours={record.hours} minutes={record.minutes} seconds={record.seconds} size="md" glow />
+            <LCDDisplay
+              hours={record.hours} minutes={record.minutes} seconds={record.seconds}
+              size="md" glow
+              style={{ fontSize: 'clamp(16px, calc((100vw - 134px) / 10.2), 36px)' }}
+            />
           </div>
 
           {/* Race info (scan-wipe in on hover) */}
@@ -112,6 +111,10 @@ function PBCard({ record, isOwner, onDelete }: {
 
         {/* Logo bar */}
         <div className="relative flex items-center justify-center px-1.5 py-1.5">
+          <span className="absolute left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded"
+            style={{ background: 'rgba(0,0,0,0.15)', color: '#3D2400', border: '1px solid rgba(61,36,0,0.25)' }}>
+            {record.category}
+          </span>
           <span className="text-[13px] font-black tracking-[0.15em]" style={{ color: '#3D2400', fontFamily: "'Orbitron', sans-serif" }}>
             KIZARM
           </span>
