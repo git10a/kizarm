@@ -63,6 +63,13 @@ function DemoCard({ hours, minutes, seconds, name, cat, date, pb, size = 'md' }:
 }
 
 // ── Main Landing page ─────────────────────────────────────
+function isInAppBrowser() {
+  const ua = navigator.userAgent;
+  return /Line\/|Instagram|FBAN|FBAV|Twitter|Snapchat|TikTok|MicroMessenger|GSA\/|YJApp/i.test(ua)
+    || (/Android/.test(ua) && /Version\/\d/.test(ua) && !/Chrome\/\d/.test(ua))
+    || (!/Safari\//.test(ua) && /iPhone|iPad/.test(ua) && !/CriOS|FxiOS/.test(ua));
+}
+
 export function Landing() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
@@ -72,8 +79,10 @@ export function Landing() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
+  const inAppBrowser = isInAppBrowser();
 
   const handleGoogleLogin = async () => {
+    if (inAppBrowser) return;
     setGoogleLoading(true);
     await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -124,11 +133,18 @@ export function Landing() {
 
         {/* CTA */}
         <div className="flex flex-col items-center gap-3 mb-14">
-          <button onClick={handleGoogleLogin} disabled={googleLoading}
-            className="flex items-center justify-center gap-3 px-8 py-4 bg-[#111] text-white text-sm font-bold rounded-xl hover:bg-[#222] transition-colors disabled:opacity-50 shadow-lg w-full max-w-xs">
-            <GoogleIcon size={20} />
-            {googleLoading ? '...' : 'Googleで無料ではじめる'}
-          </button>
+          {inAppBrowser ? (
+            <div className="w-full max-w-xs rounded-xl border border-[#FFD966] bg-[#FFFBEA] px-4 py-3 text-center text-xs text-[#7A5800] leading-relaxed">
+              <p className="font-bold mb-1">このブラウザではGoogleログインできません</p>
+              <p>右下のメニューから「Safariで開く」を選んでください</p>
+            </div>
+          ) : (
+            <button onClick={handleGoogleLogin} disabled={googleLoading}
+              className="flex items-center justify-center gap-3 px-8 py-4 bg-[#111] text-white text-sm font-bold rounded-xl hover:bg-[#222] transition-colors disabled:opacity-50 shadow-lg w-full max-w-xs">
+              <GoogleIcon size={20} />
+              {googleLoading ? '...' : 'Googleで無料ではじめる'}
+            </button>
+          )}
           <button onClick={() => setShowEmailForm(!showEmailForm)}
             className="text-[#AAA] text-xs hover:text-[#666] transition-colors underline underline-offset-2">
             メールアドレスで{mode === 'signin' ? 'ログイン' : '登録'}
@@ -146,6 +162,12 @@ export function Landing() {
                 </button>
               ))}
             </div>
+            {inAppBrowser ? (
+              <div className="w-full rounded-lg border border-[#FFD966] bg-[#FFFBEA] px-3 py-2.5 text-center text-xs text-[#7A5800] leading-snug mb-3">
+                <p className="font-bold">このブラウザではGoogleログインできません</p>
+                <p>「Safariで開く」をご利用ください</p>
+              </div>
+            ) : (
             <button
               type="button"
               onClick={handleGoogleLogin}
@@ -155,6 +177,7 @@ export function Landing() {
               <GoogleIcon size={16} />
               {googleLoading ? '...' : mode === 'signin' ? 'Googleでログイン' : 'Googleで新規登録'}
             </button>
+            )}
             <div className="flex items-center gap-3 mb-3">
               <div className="flex-1 h-px bg-[#E8E8E8]" />
               <span className="text-[#BBB] text-xs">または</span>
@@ -222,11 +245,18 @@ export function Landing() {
       <section className="py-16 px-6 text-center border-t border-[#E8E8E8]">
         <h2 className="text-2xl font-black mb-3 text-[#111]">あなたの記録を、<span className="text-[#FFC200]">刻もう。</span></h2>
         <p className="text-[#999] text-sm mb-8">無料ではじめられます。</p>
-        <button onClick={handleGoogleLogin} disabled={googleLoading}
-          className="inline-flex items-center gap-3 px-8 py-4 bg-[#FFC200] text-black text-sm font-bold rounded-xl hover:bg-[#e6af00] transition-colors disabled:opacity-50 shadow-md">
-          <GoogleIcon />
-          {googleLoading ? '...' : 'Googleで無料ではじめる'}
-        </button>
+        {inAppBrowser ? (
+          <div className="inline-block rounded-xl border border-[#FFD966] bg-[#FFFBEA] px-6 py-3 text-sm text-[#7A5800] text-center">
+            <p className="font-bold mb-0.5">アプリ内ブラウザではログインできません</p>
+            <p className="text-xs">「Safariで開く」からご利用ください</p>
+          </div>
+        ) : (
+          <button onClick={handleGoogleLogin} disabled={googleLoading}
+            className="inline-flex items-center gap-3 px-8 py-4 bg-[#FFC200] text-black text-sm font-bold rounded-xl hover:bg-[#e6af00] transition-colors disabled:opacity-50 shadow-md">
+            <GoogleIcon />
+            {googleLoading ? '...' : 'Googleで無料ではじめる'}
+          </button>
+        )}
       </section>
 
       {/* Footer */}
