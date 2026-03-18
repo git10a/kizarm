@@ -38,6 +38,13 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </header>
       <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
+      <footer className="border-t border-[#E8E8E8] py-6 text-center bg-white mt-4">
+        <div className="flex items-center justify-center gap-6 mb-2">
+          <a href="/terms" className="text-[#AAA] text-xs hover:text-[#666] transition-colors">利用規約</a>
+          <a href="/privacy" className="text-[#AAA] text-xs hover:text-[#666] transition-colors">プライバシーポリシー</a>
+        </div>
+        <span className="text-[#CCC] text-xs tracking-widest" style={{ fontFamily: "'Orbitron', sans-serif" }}>KIZARM</span>
+      </footer>
     </div>
   );
 }

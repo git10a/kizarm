@@ -7,6 +7,8 @@ const AddRecord = lazy(() => import('./pages/AddRecord').then(m => ({ default: m
 const EditRecord = lazy(() => import('./pages/EditRecord').then(m => ({ default: m.EditRecord })));
 const PublicProfile = lazy(() => import('./pages/PublicProfile').then(m => ({ default: m.PublicProfile })));
 const Landing = lazy(() => import('./pages/Landing').then(m => ({ default: m.Landing })));
+const Terms = lazy(() => import('./pages/Terms').then(m => ({ default: m.Terms })));
+const Privacy = lazy(() => import('./pages/Privacy').then(m => ({ default: m.Privacy })));
 
 const LoadingFallback = (
   <div className="min-h-screen bg-[#F8F8F6] flex items-center justify-center">
@@ -30,6 +32,8 @@ function AuthenticatedRoutes() {
       <Route path="/edit/:id">
         <Layout><Suspense fallback={null}><EditRecord /></Suspense></Layout>
       </Route>
+      <Route path="/terms"><Terms /></Route>
+      <Route path="/privacy"><Privacy /></Route>
       <Route path="/">
         <Redirect to={`/u/${user!.id}`} />
       </Route>
@@ -54,6 +58,8 @@ function AppInner() {
           <Route path="/u/:name">
             <Layout><PublicProfile /></Layout>
           </Route>
+          <Route path="/terms"><Terms /></Route>
+          <Route path="/privacy"><Privacy /></Route>
           <Route><Landing /></Route>
         </Switch>
       </Suspense>
