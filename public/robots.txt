@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /add
+Disallow: /edit/
+
+Sitemap: https://kizarm.com/sitemap.xml
