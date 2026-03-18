@@ -171,7 +171,6 @@ export function PublicProfile() {
   const [notFound, setNotFound] = useState(false);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<UserProfile | null>(null);
-  const [activeCategory, setActiveCategory] = useState<RaceCategory | 'すべて'>('すべて');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -245,14 +244,7 @@ export function PublicProfile() {
   const pbRecords = getPBRecords(records);
   const sortedRecords = [...records].sort((a, b) => b.date.localeCompare(a.date));
 
-  // filtered data
-  const filteredPBCategories = RACE_CATEGORIES.filter((cat) => {
-    if (activeCategory !== 'すべて' && cat !== activeCategory) return false;
-    return !!pbRecords[cat];
-  });
-  const filteredHistory = activeCategory === 'すべて'
-    ? sortedRecords
-    : sortedRecords.filter((r) => r.category === activeCategory);
+  const filteredPBCategories = RACE_CATEGORIES.filter((cat) => !!pbRecords[cat]);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -321,21 +313,6 @@ export function PublicProfile() {
         </div>
       </div>
 
-      {/* Category filter */}
-      {records.length > 0 && (
-        <div className="flex gap-2 flex-wrap mb-8">
-          {(['すべて', ...RACE_CATEGORIES] as const).map((cat) => (
-            <button key={cat} onClick={() => setActiveCategory(cat as RaceCategory | 'すべて')}
-              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                activeCategory === cat
-                  ? 'bg-[#FFC200] text-black border-[#FFC200] font-semibold'
-                  : 'text-[#888] border-[#E8E8E8] hover:border-[#D0D0D0] hover:text-[#666]'
-              }`}>
-              {cat}
-            </button>
-          ))}
-        </div>
-      )}
 
       {/* Personal Bests */}
       {filteredPBCategories.length > 0 && (
@@ -354,7 +331,7 @@ export function PublicProfile() {
       )}
 
       {/* Race History */}
-      {filteredHistory.length === 0 ? (
+      {sortedRecords.length === 0 ? (
         <div className="bg-white rounded-2xl border border-[#E8E8E8] py-16 text-center mb-8">
           <div className="text-[#D0D0D0] text-5xl mb-3" style={{ fontFamily: "'Orbitron', sans-serif" }}>00:00:00</div>
           <p className="text-[#888] text-sm">まだ記録がありません</p>
@@ -366,7 +343,7 @@ export function PublicProfile() {
           </h2>
           {(() => {
             const byYear: Record<string, RaceRecord[]> = {};
-            for (const r of filteredHistory) {
+            for (const r of sortedRecords) {
               const year = r.date.slice(0, 4);
               if (!byYear[year]) byYear[year] = [];
               byYear[year].push(r);
@@ -443,7 +420,7 @@ export function PublicProfile() {
       {/* Growth Chart */}
       {records.length >= 2 && (
         <div className="mb-8">
-          <GrowthChart records={activeCategory === 'すべて' ? records : records.filter(r => r.category === activeCategory)} />
+          <GrowthChart records={records} />
         </div>
       )}
 
