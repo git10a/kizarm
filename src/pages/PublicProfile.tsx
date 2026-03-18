@@ -288,7 +288,6 @@ export function PublicProfile() {
               </div>
             ) : (
               <>
-                <div className="text-[#777] text-xs tracking-widest uppercase mb-1">Runner</div>
                 <h1 className="text-[#111] text-2xl font-bold mb-2" style={{ fontFamily: "'Orbitron', sans-serif" }}>
                   {profile.displayName || (isOwner ? '名前未設定' : 'Unknown Runner')}
                 </h1>
