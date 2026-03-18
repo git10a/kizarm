@@ -111,8 +111,14 @@ function PBCard({ record, isOwner, onDelete }: {
 
         {/* Logo bar */}
         <div className="relative flex items-center justify-center px-1.5 py-1.5">
-          <span className="absolute left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded"
-            style={{ background: 'rgba(0,0,0,0.15)', color: '#3D2400', border: '1px solid rgba(61,36,0,0.25)' }}>
+          <span className="absolute left-1.5 text-[9px] font-bold px-2 py-0.5 rounded-md select-none"
+            style={{
+              background: 'linear-gradient(180deg, #FFE566 0%, #E6A800 100%)',
+              color: '#3D2400',
+              border: '1px solid rgba(61,36,0,0.3)',
+              boxShadow: '0 2px 0 rgba(61,36,0,0.35), 0 1px 2px rgba(0,0,0,0.15)',
+              letterSpacing: '0.04em',
+            }}>
             {record.category}
           </span>
           <span className="text-[13px] font-black tracking-[0.15em]" style={{ color: '#3D2400', fontFamily: "'Orbitron', sans-serif" }}>
